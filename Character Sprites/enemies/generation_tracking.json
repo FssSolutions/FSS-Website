@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-06-13",
+  "enemies": [
+    { "name": "Iron Soldier",      "type": "soldier",      "character_id": "7c770658-1628-4a4e-ab00-393017cdb287", "folder": "soldier",      "status": "downloaded" },
+    { "name": "Tundra Wolf",       "type": "wolf",         "character_id": "dda829fd-027f-4d00-a269-a7b804c678bd", "folder": "wolf",         "status": "downloaded" },
+    { "name": "Bandit",            "type": "bandit",       "character_id": "4b193e17-83f3-4cb6-a19c-5c6621663b3a", "folder": "bandit",       "status": "downloaded" },
+    { "name": "Dire Wolf",         "type": "direwolf",     "character_id": "a6fcd102-8fed-4eb2-a8a3-51d611a7e86c", "folder": "direwolf",     "status": "downloaded" },
+    { "name": "Ruins Guardian",    "type": "guardian",     "character_id": "dd46ce58-abea-49cc-8a83-130e9cd10dbf", "folder": "guardian",     "status": "downloaded" },
+    { "name": "Heavy Soldier",     "type": "heavysoldier", "character_id": "4d0e68d9-a3ee-49b6-8f03-1e5f184e443a", "folder": "heavysoldier", "status": "downloaded" },
+    { "name": "Elite Guard",       "type": "eliteguard",   "character_id": "3cb1f351-1435-4202-bd3a-e265d62ff86c", "folder": "eliteguard",   "status": "downloaded" },
+    { "name": "Iron Guard",        "type": "ironguard",    "character_id": "3727a8ea-ee92-41a7-97df-cd2c2c679eb2", "folder": "ironguard",    "status": "downloaded" },
+    { "name": "Beast of Thornwood","type": "direwolfboss", "character_id": "e76faaa9-c2c6-439a-b244-d5ff051266ae", "folder": "direwolfboss", "status": "downloaded" },
+    { "name": "Aldric the Iron",   "type": "aldric",       "character_id": "bb0419b9-4170-4e83-a5bc-246fd1445dc0", "folder": "aldric",       "status": "downloaded" }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "62a57239-380b-4dbd-9c5d-da6b82b145b0",
+        "name": "Runebound A spellblade in deep navy blue robes with glowing cyan rune markings on the chest \u2014 a glowing star or sigil symbol at the center. Carries a tall runesword with a glowing cyan orb at the top of the hilt that pulses with light. A small glowing gem or crystal floats above the head. Medium build, somewhere between a mage and a warrior. Palette is dark blue, royal blue, and electric cyan.",
+        "prompt": "Runebound A spellblade in deep navy blue robes with glowing cyan rune markings on the chest \u2014 a glowing star or sigil symbol at the center. Carries a tall runesword with a glowing cyan orb at the top of the hilt that pulses with light. A small glowing gem or crystal floats above the head. Medium build, somewhere between a mage and a warrior. Palette is dark blue, royal blue, and electric cyan.",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-06-13T17:05:39.692288+00:00"
+      },
+      "folder": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit",
+      "frames": {
+        "rotations": {
+          "south": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/south.png",
+          "south-east": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/south-east.png",
+          "east": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/east.png",
+          "north-east": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/north-east.png",
+          "north": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/north.png",
+          "north-west": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/north-west.png",
+          "west": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/west.png",
+          "south-west": "Runebound_A_spellblade_in_deep_navy_blue_robes_wit/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-06-13T17:07:31.412854"
+}
