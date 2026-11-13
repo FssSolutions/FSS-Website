@@ -1,0 +1,5 @@
+# Builds and publishes the FSS Solutions website (see website/README.md)
+[build]
+  base = "website"
+  command = "node build.js"
+  publish = "dist"

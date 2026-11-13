@@ -4,8 +4,18 @@
     {
       "name": "ironbound",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["ironbound/server.js"],
+      "runtimeArgs": [
+        "ironbound/server.js"
+      ],
       "port": 3000
+    },
+    {
+      "name": "fss-website",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "website/server.js"
+      ],
+      "port": 8080
     }
   ]
 }

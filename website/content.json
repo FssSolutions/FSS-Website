@@ -1,0 +1,748 @@
+{
+  "settings": {
+    "siteName": "FSS Solutions",
+    "titleSuffix": " | FSS Solutions",
+    "logo": "assets/images/logo.jpg",
+    "facebook": "https://www.facebook.com/profile.php?id=61576716483553",
+    "instagram": "https://www.instagram.com/fsssolutions/",
+    "copyright": "© {year} FSS Solutions. All rights reserved.",
+    "siteUrl": "https://www.fsssolutions.ca",
+    "theme": {
+      "light": "#e0e0db",
+      "white": "#ffffff",
+      "dark": "#111111",
+      "navy": "#253551",
+      "text": "#000000",
+      "accent": "#253551",
+      "headingFont": "Montserrat",
+      "bodyFont": "Montserrat",
+      "buttonFont": "Poppins",
+      "uppercase": true
+    }
+  },
+  "nav": [
+    {
+      "label": "About",
+      "href": "/about/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact/"
+    },
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Portfolio",
+      "href": "/portfolio/"
+    }
+  ],
+  "footer": {
+    "id": "s1",
+    "layout": "1-1-1-1",
+    "style": {
+      "theme": "light",
+      "valign": "top",
+      "padding": "60px"
+    },
+    "columns": [
+      {
+        "id": "c2",
+        "blocks": [
+          {
+            "id": "b3",
+            "type": "image",
+            "src": "assets/images/logo.jpg",
+            "alt": "FSS Solutions",
+            "ratio": "auto",
+            "maxWidth": "260px"
+          }
+        ]
+      },
+      {
+        "id": "c4",
+        "blocks": [
+          {
+            "id": "b5",
+            "type": "links",
+            "title": "Explore",
+            "items": [
+              {
+                "label": "About us",
+                "href": "/about/"
+              },
+              {
+                "label": "Contact",
+                "href": "/contact/"
+              },
+              {
+                "label": "Portfolio",
+                "href": "/portfolio/"
+              },
+              {
+                "label": "Services",
+                "href": "/#services"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "c6",
+        "blocks": [
+          {
+            "id": "b7",
+            "type": "links",
+            "title": "Follow us",
+            "items": [
+              {
+                "label": "Facebook",
+                "href": "https://www.facebook.com/profile.php?id=61576716483553"
+              },
+              {
+                "label": "Instagram",
+                "href": "https://www.instagram.com/fsssolutions/"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "c8",
+        "blocks": [
+          {
+            "id": "b9",
+            "type": "links",
+            "title": "Get in touch",
+            "items": [
+              {
+                "label": "Riley@fsssolutions.ca",
+                "href": "mailto:Riley@fsssolutions.ca"
+              },
+              {
+                "label": "778-554-8184",
+                "href": "tel:+17785548184"
+              }
+            ]
+          },
+          {
+            "id": "ba",
+            "type": "button",
+            "label": "Request a Quote",
+            "href": "/contact/",
+            "variant": "outline"
+          }
+        ]
+      }
+    ]
+  },
+  "pages": [
+    {
+      "id": "home",
+      "slug": "",
+      "title": "FSS Solutions | Carpentry & Home Services in Greater Vancouver",
+      "fullTitle": true,
+      "description": "FSS Solutions offers expert carpentry, cabinet installation, finishing work and home repair services in Greater Vancouver. Quality craftsmanship and integrity guaranteed.",
+      "headerOverlay": true,
+      "sections": [
+        {
+          "id": "sb",
+          "layout": "1",
+          "style": {
+            "theme": "dark",
+            "bgImage": "assets/images/hero-office.jpg",
+            "overlay": 0.35,
+            "minHeight": "100vh",
+            "align": "center",
+            "valign": "middle"
+          },
+          "columns": [
+            {
+              "id": "cc",
+              "blocks": [
+                {
+                  "id": "bd",
+                  "type": "heading",
+                  "level": 1,
+                  "text": "Reliable Carpentry & Home Services in Greater Vancouver"
+                },
+                {
+                  "id": "be",
+                  "type": "heading",
+                  "level": 4,
+                  "text": "Professional finishing carpentry, cabinet installation, and general home repairs done right the first time.",
+                  "maxWidth": "560px",
+                  "align": "center"
+                },
+                {
+                  "id": "bf",
+                  "type": "button",
+                  "label": "Request a Quote",
+                  "href": "/contact/",
+                  "variant": "outline",
+                  "align": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sg",
+          "layout": "1-1",
+          "style": {
+            "theme": "light",
+            "valign": "middle"
+          },
+          "columns": [
+            {
+              "id": "ch",
+              "blocks": [
+                {
+                  "id": "bi",
+                  "type": "image",
+                  "src": "assets/images/services-exterior.jpg",
+                  "alt": "Exterior home project by FSS Solutions",
+                  "ratio": "4:5"
+                }
+              ]
+            },
+            {
+              "id": "cj",
+              "blocks": [
+                {
+                  "id": "bk",
+                  "type": "heading",
+                  "level": 1,
+                  "text": "Services"
+                },
+                {
+                  "id": "bl",
+                  "type": "text",
+                  "html": "<p>Skilled, detail-focused workmanship for homeowners, builders, and property managers across Greater Vancouver.</p>"
+                },
+                {
+                  "id": "bm",
+                  "type": "list",
+                  "items": [
+                    "Finishing Carpentry",
+                    "Cabinet Installation",
+                    "Custom Built-ins",
+                    "Trim & Mouldings",
+                    "Door & Hardware Installation",
+                    "Interior Renovation Support",
+                    "General Home Repairs",
+                    "Full House Wash Services"
+                  ]
+                },
+                {
+                  "id": "bn",
+                  "type": "spacer",
+                  "height": 20
+                },
+                {
+                  "id": "bo",
+                  "type": "button",
+                  "label": "Learn more",
+                  "href": "/about/",
+                  "variant": "outline"
+                }
+              ]
+            }
+          ],
+          "anchor": "services"
+        },
+        {
+          "id": "sp",
+          "layout": "1-1",
+          "style": {
+            "theme": "white",
+            "valign": "top"
+          },
+          "columns": [
+            {
+              "id": "cq",
+              "blocks": [
+                {
+                  "id": "br",
+                  "type": "heading",
+                  "level": 2,
+                  "text": "Why choose us?"
+                },
+                {
+                  "id": "bs",
+                  "type": "text",
+                  "html": "<p>Your satisfaction is our top priority. We deliver projects on schedule and within budget, aiming to leave you more pleased than when we began. We stand by our commitments and uphold the highest standards of integrity. Rely on FSS Solutions for dependable, professional carpentry, cabinet installation, and home repairs throughout Greater Vancouver.</p>"
+                },
+                {
+                  "id": "bt",
+                  "type": "heading",
+                  "level": 2,
+                  "text": "Service Areas"
+                },
+                {
+                  "id": "bu",
+                  "type": "text",
+                  "html": "<p>Based in East Vancouver, FSS Solutions proudly serves homeowners and builders throughout Greater Vancouver and abroad</p>"
+                },
+                {
+                  "id": "bv",
+                  "type": "list",
+                  "items": [
+                    "Gulf Islands",
+                    "Vancouver",
+                    "Burnaby",
+                    "North Vancouver",
+                    "West Vancouver",
+                    "Coquitlam",
+                    "Port Moody",
+                    "Surrey",
+                    "New Westminster"
+                  ]
+                },
+                {
+                  "id": "bw",
+                  "type": "spacer",
+                  "height": 40
+                },
+                {
+                  "id": "bx",
+                  "type": "button",
+                  "label": "Work With Us",
+                  "href": "/contact/",
+                  "variant": "outline"
+                }
+              ]
+            },
+            {
+              "id": "cy",
+              "blocks": [
+                {
+                  "id": "bz",
+                  "type": "image",
+                  "src": "assets/images/kitchen-2.jpg",
+                  "alt": "Custom kitchen cabinetry",
+                  "ratio": "3:4"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "slug": "about",
+      "title": "About",
+      "description": "Meet FSS Solutions — finishing carpentry built on honesty, integrity and serving others well.",
+      "sections": [
+        {
+          "id": "s10",
+          "layout": "1-1",
+          "style": {
+            "theme": "light",
+            "valign": "middle"
+          },
+          "columns": [
+            {
+              "id": "c11",
+              "blocks": [
+                {
+                  "id": "b12",
+                  "type": "heading",
+                  "level": 1,
+                  "text": "Who we are"
+                },
+                {
+                  "id": "b13",
+                  "type": "text",
+                  "html": "<p>My journey in carpentry started in high school, learning the basics of framing and developing a strong work ethic early on. From there, I spent time living and working on Keats Island, where I gained hands-on experience across all areas of construction. That season taught me to be resourceful, take pride in my work, and do things right the first time.</p><p>Over the years, I found my passion in finishing carpentry—where precision and attention to detail make all the difference. It’s the final stage that brings a space together, and I take pride in delivering clean, high-quality results.</p><p>Today, my wife and I are building this business together with a shared commitment to honesty, integrity, and serving others well. Our goal is simple: to do excellent work, treat people right, and honor God in everything we build.</p>"
+                }
+              ]
+            },
+            {
+              "id": "c14",
+              "blocks": [
+                {
+                  "id": "b15",
+                  "type": "image",
+                  "src": "assets/images/about-riley.jpg",
+                  "alt": "The FSS Solutions team",
+                  "ratio": "3:4",
+                  "maxWidth": "400px",
+                  "align": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "s16",
+          "layout": "1-1",
+          "style": {
+            "theme": "navy",
+            "valign": "top"
+          },
+          "columns": [
+            {
+              "id": "c17",
+              "blocks": [
+                {
+                  "id": "b18",
+                  "type": "heading",
+                  "level": 1,
+                  "text": "Contact us"
+                },
+                {
+                  "id": "b19",
+                  "type": "text",
+                  "html": "<p>Interested in working together? Fill out some info and we will be in touch shortly. We can’t wait to hear from you!</p>"
+                }
+              ]
+            },
+            {
+              "id": "c1a",
+              "blocks": [
+                {
+                  "id": "b1b",
+                  "type": "form",
+                  "email": "Riley@fsssolutions.ca",
+                  "subject": "New enquiry from fsssolutions.ca",
+                  "action": "",
+                  "submitLabel": "Submit",
+                  "successMessage": "Thank you! We will be in touch shortly.",
+                  "fields": [
+                    {
+                      "label": "First Name",
+                      "name": "first_name",
+                      "type": "text",
+                      "required": true,
+                      "half": true
+                    },
+                    {
+                      "label": "Last Name",
+                      "name": "last_name",
+                      "type": "text",
+                      "required": true,
+                      "half": true
+                    },
+                    {
+                      "label": "Email",
+                      "name": "email",
+                      "type": "email",
+                      "required": true
+                    },
+                    {
+                      "label": "Message",
+                      "name": "message",
+                      "type": "textarea",
+                      "required": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "slug": "contact",
+      "title": "Contact",
+      "description": "Contact FSS Solutions for carpentry, cabinet installation and home repairs in Greater Vancouver.",
+      "sections": [
+        {
+          "id": "s1c",
+          "layout": "1-1",
+          "style": {
+            "theme": "light",
+            "valign": "middle"
+          },
+          "columns": [
+            {
+              "id": "c1d",
+              "blocks": [
+                {
+                  "id": "b1e",
+                  "type": "heading",
+                  "level": 1,
+                  "text": "Contact Us"
+                },
+                {
+                  "id": "b1f",
+                  "type": "text",
+                  "html": "<p>Have a question? Feel free to drop us an email or give us a call and we would be happy to talk with you.</p>"
+                },
+                {
+                  "id": "b1g",
+                  "type": "text",
+                  "html": "<p><a href=\"mailto:Riley@fsssolutions.ca\">Riley@fsssolutions.ca</a></p><p><a href=\"tel:+17785548184\">778-554-8184</a></p>",
+                  "size": "large"
+                }
+              ]
+            },
+            {
+              "id": "c1h",
+              "blocks": [
+                {
+                  "id": "b1i",
+                  "type": "image",
+                  "src": "assets/images/contact-kitchen.jpg",
+                  "alt": "Kitchen island and cabinetry",
+                  "ratio": "3:4",
+                  "maxWidth": "420px",
+                  "align": "center"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "portfolio",
+      "slug": "portfolio",
+      "title": "Portfolio",
+      "description": "Recent finishing carpentry and cabinetry projects by FSS Solutions.",
+      "sections": [
+        {
+          "id": "s1j",
+          "layout": "1",
+          "style": {
+            "theme": "white",
+            "valign": "top"
+          },
+          "columns": [
+            {
+              "id": "c1k",
+              "blocks": [
+                {
+                  "id": "b1l",
+                  "type": "text",
+                  "html": "<p>Our work speaks for itself</p>",
+                  "size": "eyebrow"
+                },
+                {
+                  "id": "b1m",
+                  "type": "heading",
+                  "level": 3,
+                  "text": "Take a look at a selection of our recent projects, crafted with care and precision.",
+                  "maxWidth": "900px"
+                },
+                {
+                  "id": "b1n",
+                  "type": "spacer",
+                  "height": 60
+                },
+                {
+                  "id": "b1o",
+                  "type": "cards",
+                  "columns": 3,
+                  "items": [
+                    {
+                      "title": "Library",
+                      "image": "assets/images/library-1.jpg",
+                      "href": "/portfolio/library/"
+                    },
+                    {
+                      "title": "Kitchens",
+                      "image": "assets/images/kitchen-1.jpg",
+                      "href": "/portfolio/kitchens/"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "library",
+      "slug": "portfolio/library",
+      "title": "Library",
+      "description": "Custom library built-ins, crown moulding and lighting by FSS Solutions.",
+      "sections": [
+        {
+          "id": "s1p",
+          "layout": "1",
+          "style": {
+            "theme": "white",
+            "valign": "top"
+          },
+          "columns": [
+            {
+              "id": "c1q",
+              "blocks": [
+                {
+                  "id": "b1r",
+                  "type": "text",
+                  "html": "<p>Portfolio</p>",
+                  "size": "eyebrow"
+                },
+                {
+                  "id": "b1s",
+                  "type": "heading",
+                  "level": 2,
+                  "text": "Library"
+                },
+                {
+                  "id": "b1t",
+                  "type": "gallery",
+                  "columns": 2,
+                  "images": [
+                    {
+                      "src": "assets/images/library-1.jpg",
+                      "alt": "Library project"
+                    },
+                    {
+                      "src": "assets/images/library-2.jpg",
+                      "alt": "Library project"
+                    },
+                    {
+                      "src": "assets/images/library-3.jpg",
+                      "alt": "Library project"
+                    },
+                    {
+                      "src": "assets/images/library-4.jpg",
+                      "alt": "Library project"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "s1u",
+          "layout": "1-1",
+          "style": {
+            "theme": "white",
+            "padding": "20px"
+          },
+          "columns": [
+            {
+              "id": "c1v",
+              "blocks": [
+                {
+                  "id": "b1w",
+                  "type": "button",
+                  "label": "← All projects",
+                  "href": "/portfolio/",
+                  "variant": "outline"
+                }
+              ]
+            },
+            {
+              "id": "c1x",
+              "blocks": [
+                {
+                  "id": "b1y",
+                  "type": "button",
+                  "label": "Next: Kitchens →",
+                  "href": "/portfolio/kitchens/",
+                  "variant": "outline",
+                  "align": "right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kitchens",
+      "slug": "portfolio/kitchens",
+      "title": "Kitchens",
+      "description": "Kitchen cabinet installation and finishing carpentry by FSS Solutions.",
+      "sections": [
+        {
+          "id": "s1z",
+          "layout": "1",
+          "style": {
+            "theme": "white",
+            "valign": "top"
+          },
+          "columns": [
+            {
+              "id": "c20",
+              "blocks": [
+                {
+                  "id": "b21",
+                  "type": "text",
+                  "html": "<p>Portfolio</p>",
+                  "size": "eyebrow"
+                },
+                {
+                  "id": "b22",
+                  "type": "heading",
+                  "level": 2,
+                  "text": "Kitchens"
+                },
+                {
+                  "id": "b23",
+                  "type": "gallery",
+                  "columns": 2,
+                  "images": [
+                    {
+                      "src": "assets/images/kitchen-1.jpg",
+                      "alt": "Kitchen project"
+                    },
+                    {
+                      "src": "assets/images/kitchen-2.jpg",
+                      "alt": "Kitchen project"
+                    },
+                    {
+                      "src": "assets/images/kitchen-3.jpg",
+                      "alt": "Kitchen project"
+                    },
+                    {
+                      "src": "assets/images/kitchen-4.jpg",
+                      "alt": "Kitchen project"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "s24",
+          "layout": "1-1",
+          "style": {
+            "theme": "white",
+            "padding": "20px"
+          },
+          "columns": [
+            {
+              "id": "c25",
+              "blocks": [
+                {
+                  "id": "b26",
+                  "type": "button",
+                  "label": "← Previous: Library",
+                  "href": "/portfolio/library/",
+                  "variant": "outline"
+                }
+              ]
+            },
+            {
+              "id": "c27",
+              "blocks": [
+                {
+                  "id": "b28",
+                  "type": "button",
+                  "label": "All projects →",
+                  "href": "/portfolio/",
+                  "variant": "outline",
+                  "align": "right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
