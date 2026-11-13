@@ -210,3 +210,15 @@
   .fe-modal { border-radius: 16px 16px 0 0; max-height: 90vh; }
   #fe-toast { bottom: calc(var(--fe-dock) + 14px); }
 }
+
+/* ===== Visitor view (see the site as visitors do, from inside the editor) ===== */
+#fe-visit-bar { display: none; }
+.fe-visitor #fe-topbar, .fe-visitor #fe-left, .fe-visitor #fe-right, .fe-visitor #fe-dock, .fe-visitor .fe-fmt { display: none !important; }
+.fe-visitor #fe-stage { top: 0; left: 0; right: 0; bottom: 0; padding: 0; }
+.fe-visitor #fe-stage #site-root { width: 100%; box-shadow: none; }
+.fe-visitor #fe-stage .section[style*="min-height:100vh"] { min-height: 100vh !important; }
+.fe-visitor #fe-visit-bar { display: flex; position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 300;
+  align-items: center; gap: 10px; background: rgba(29,36,51,.94); color: #fff; padding: 6px 6px 6px 16px; border-radius: 30px;
+  font: 13px system-ui, -apple-system, sans-serif; box-shadow: 0 6px 24px rgba(0,0,0,.35); white-space: nowrap; }
+#fe-visit-bar button { background: #2f6fed; color: #fff; border: 0; border-radius: 22px; padding: 10px 18px; font: 600 15px system-ui, -apple-system, sans-serif; cursor: pointer; }
+.fe-preview #fe-stage a, .fe-visitor #fe-stage a { cursor: pointer; }

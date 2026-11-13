@@ -17,11 +17,17 @@
   var state = {
     site: null, pageId: null, sel: null, tab: 'selection',
     undo: [], redo: [], dirty: false, server: false, passwordRequired: false,
-    mobile: false, preview: false, savedJson: '', mode: null,
+    mobile: false, preview: false, visitor: false, savedJson: '', mode: null,
     pending: {},   // new photos not yet published: path -> File
     blobUrls: {}   // path -> object URL so new photos show before they are published
   };
   var PW_KEY = 'fss-editor-pw';
+  // Optional settings from the page (used by the phone test copy, see demo.js).
+  var CFG = window.FSS_EDITOR_CONFIG || {};
+  var DEMO = !!CFG.demo;
+  var ASSET = CFG.assetPrefix != null ? CFG.assetPrefix : '/';
+  var DEMO_PUBLISHED_KEY = 'fss-demo-published-v1';
+  if (DEMO) DRAFT_KEY = 'fss-demo-draft-v1';
   var isPhone = function () { return window.matchMedia('(max-width: 820px)').matches; };
 
   // ---------------------------------------------------------------- helpers
@@ -262,11 +268,13 @@
     $('#fe-theme').textContent = R.themeCss(state.site);
     var fonts = R.fontsUrl(state.site);
     if ($('#fe-fonts').getAttribute('href') !== fonts) $('#fe-fonts').setAttribute('href', fonts);
+    var live = state.preview || state.visitor;
     document.body.classList.toggle('fe-preview', state.preview);
+    document.body.classList.toggle('fe-visitor', state.visitor);
     document.body.classList.toggle('fe-mobile', state.mobile);
-    root.innerHTML = R.renderPage(state.site, page(), { edit: !state.preview });
-    root.classList.toggle('fe-edit', !state.preview);
-    if (!state.preview) decorate();
+    root.innerHTML = R.renderPage(state.site, page(), { edit: !live, assetPrefix: ASSET });
+    root.classList.toggle('fe-edit', !live);
+    if (!live) decorate();
     else wirePreview();
     showPendingImages();
     applySelection();
@@ -312,6 +320,46 @@
   function wirePreview() {
     var header = $('.site-header', root), toggle = header && $('.menu-toggle', header);
     if (toggle) toggle.addEventListener('click', function () { header.classList.toggle('open'); });
+    $$('.b-gallery', root).forEach(function (g) {
+      var imgs = $$('img', g);
+      imgs.forEach(function (img, i) { img.addEventListener('click', function () { openLightbox(imgs, i); }); });
+    });
+  }
+  function openLightbox(imgs, index) {
+    var lb = h('div', { class: 'lightbox', html: '<img alt=""><button class="lb-close" aria-label="Close">×</button>' +
+      (imgs.length > 1 ? '<button class="lb-prev" aria-label="Previous">‹</button><button class="lb-next" aria-label="Next">›</button>' : '') });
+    var big = $('img', lb);
+    function show(i) { index = (i + imgs.length) % imgs.length; big.src = imgs[index].src; }
+    lb.addEventListener('click', function (e) {
+      if (e.target.classList.contains('lb-prev')) show(index - 1);
+      else if (e.target.classList.contains('lb-next')) show(index + 1);
+      else if (e.target !== big) lb.remove();
+    });
+    show(index);
+    document.body.appendChild(lb);
+  }
+  // In preview, links move between pages inside the editor instead of leaving it.
+  function onLiveClick(e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (/^(https?:|mailto:|tel:)/i.test(href)) return;
+    e.preventDefault();
+    var parts = href.split('#'), path = parts[0], frag = parts[1];
+    if (path) {
+      var p = R.findPage(state.site, path);
+      if (p && p.id !== state.pageId) goToPage(p.id);
+      else if (p) { renderCanvas(); stage.scrollTop = 0; }
+    }
+    var t = frag && root.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(frag) : frag));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+  }
+  function setVisitor(on) {
+    state.visitor = on;
+    if (on) { state.sel = null; state.preview = false; if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
+    closeSheets();
+    renderAll();
+    stage.scrollTop = 0;
   }
 
   function applySelection() {
@@ -336,7 +384,7 @@
       return '<option value="' + esc(p.id) + '"' + (p.id === page().id ? ' selected' : '') + '>' + esc((p.slug ? '' : '⌂ ') + (p.fullTitle && !p.slug ? 'Home' : p.title)) + '  —  ' + esc(pageUrl(p)) + '</option>';
     }).join('');
     bar.innerHTML =
-      '<span class="fe-brand">Site Editor</span>' +
+      '<span class="fe-brand">Site Editor' + (DEMO ? ' <small style="opacity:.6;font-weight:400">(test copy)</small>' : '') + '</span>' +
       '<div class="fe-group"><select id="fe-page" title="Page you are editing">' + pages + '</select>' +
       '<button class="fe-tbtn" data-top="add-page" title="Add a new page">' + icon('plus') + '<span class="fe-label">Page</span></button>' +
       '<button class="fe-tbtn" data-top="page-settings" title="Page settings">' + icon('gear') + '</button></div>' +
@@ -349,8 +397,9 @@
       '<button class="fe-tbtn' + (state.preview ? ' on' : '') + '" data-top="preview" title="Preview without editing outlines">' + icon('eye') + '<span class="fe-label">Preview</span></button></div>' +
       '<span class="fe-spacer"></span>' +
       '<span class="fe-status" id="fe-status"></span>' +
-      '<a class="fe-tbtn" href="' + esc(pageUrl(page())) + '" target="_blank" rel="noopener" title="Open the saved version of this page">' + icon('external') + '<span class="fe-label">View site</span></a>' +
-      '<button class="fe-tbtn fe-save" data-top="save" title="Publish (Ctrl+S)">' + (state.server ? 'Publish' : 'Save') + '</button>';
+      (DEMO ? '<button class="fe-tbtn fe-visit" data-top="visit" title="See the website as visitors do">' + icon('external') + '<span class="fe-label">View site</span></button>'
+        : '<a class="fe-tbtn" href="' + esc(pageUrl(page())) + '" target="_blank" rel="noopener" title="Open the saved version of this page">' + icon('external') + '<span class="fe-label">View site</span></a>') +
+      '<button class="fe-tbtn fe-save" data-top="save" title="Publish (Ctrl+S)">' + (state.server || DEMO ? 'Publish' : 'Save') + '</button>';
     $('#fe-page').addEventListener('change', function (e) { goToPage(e.target.value); });
     renderStatus();
   }
@@ -368,7 +417,7 @@
     state.pageId = id;
     state.sel = null;
     if (state.tab === 'selection') state.tab = 'selection';
-    history.replaceState(null, '', '#page=' + encodeURIComponent(id));
+    if (!DEMO) history.replaceState(null, '', '#page=' + encodeURIComponent(id));
     stage.scrollTop = 0;
     renderAll();
   }
@@ -382,6 +431,7 @@
     else if (a === 'desktop' || a === 'mobile') { state.mobile = a === 'mobile'; renderTopbar(); renderCanvas(); }
     else if (a === 'preview') { state.preview = !state.preview; renderTopbar(); renderCanvas(); }
     else if (a === 'save') save();
+    else if (a === 'visit') setVisitor(true);
     else if (a === 'add-page') addPage();
     else if (a === 'page-settings') { state.tab = 'page'; renderInspector(); if (isPhone()) openSheet('right'); }
   });
@@ -738,7 +788,7 @@
   function prepareImage(file) {
     if (!/^image\/(jpeg|png|webp)$/.test(file.type) || !window.createImageBitmap) return Promise.resolve(file);
     return createImageBitmap(file, { imageOrientation: 'from-image' }).then(function (bmp) {
-      var max = 2000, scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      var max = CFG.maxImage || 2000, scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
       if (scale === 1 && file.size < 1.5e6) return file;
       var c = document.createElement('canvas');
       c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
@@ -781,7 +831,7 @@
   }
   function imgUrl(src) {
     if (state.blobUrls[src]) return state.blobUrls[src];
-    return /^(https?:|data:|blob:|\/)/.test(src) ? src : '/' + src;
+    return /^(https?:|data:|blob:|\/)/.test(src) ? src : ASSET + src;
   }
   // Swap in local copies of photos that haven't been published yet.
   function showPendingImages() {
@@ -827,7 +877,7 @@
   function modal(title, body, footer, opts) {
     opts = opts || {};
     var back = h('div', { class: 'fe-modal-back' });
-    var close = function () { back.remove(); document.removeEventListener('keydown', key); };
+    var close = function () { back.remove(); document.removeEventListener('keydown', key); if (opts.onClose) opts.onClose(); };
     var key = function (e) { if (e.key === 'Escape' && !opts.locked) close(); };
     back.appendChild(h('div', { class: 'fe-modal', role: 'dialog' },
       h('div', { class: 'fe-modal-h' }, h('b', null, title), opts.locked ? null : h('button', { class: 'fe-btn small', type: 'button', onclick: close }, 'Close')),
@@ -837,6 +887,35 @@
     document.addEventListener('keydown', key);
     $('#fe-modal-root').appendChild(back);
     return { close: close, el: back };
+  }
+
+  function askConfirm(title, message, okLabel, danger) {
+    return new Promise(function (resolve) {
+      var done = false, m;
+      function finish(v) { if (done) return; done = true; m.close(); resolve(v); }
+      m = modal(title, h('p', { style: 'margin:0;font-size:15px;line-height:1.45' }, message), [
+        h('button', { class: 'fe-btn', type: 'button', onclick: function () { finish(false); } }, 'Cancel'),
+        h('button', { class: 'fe-btn ' + (danger ? 'danger' : 'primary'), type: 'button', onclick: function () { finish(true); } }, okLabel || 'OK')
+      ], { onClose: function () { if (!done) { done = true; resolve(false); } } });
+    });
+  }
+  function askText(title, label, value, okLabel, checkboxLabel) {
+    return new Promise(function (resolve) {
+      var done = false, m;
+      var input = h('input', { class: 'fe-input', type: 'text', value: value || '', style: 'font-size:16px' });
+      var cb = checkboxLabel ? h('input', { type: 'checkbox', checked: true }) : null;
+      function finish(ok) {
+        if (done) return;
+        done = true; m.close();
+        resolve(ok && input.value.trim() ? { value: input.value.trim(), checked: cb ? cb.checked : false } : null);
+      }
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finish(true); } });
+      m = modal(title, [h('label', { class: 'fe-field' }, h('span', null, label), input), cb ? h('label', { class: 'fe-check' }, cb, checkboxLabel) : null], [
+        h('button', { class: 'fe-btn', type: 'button', onclick: function () { finish(false); } }, 'Cancel'),
+        h('button', { class: 'fe-btn primary', type: 'button', onclick: function () { finish(true); } }, okLabel || 'OK')
+      ], { onClose: function () { if (!done) { done = true; resolve(null); } } });
+      setTimeout(function () { input.focus(); input.select(); }, 60);
+    });
   }
 
   var toastTimer;
@@ -851,6 +930,7 @@
 
   // ---------------------------------------------------------------- canvas interaction
   function onCanvasClick(e) {
+    if (state.preview || state.visitor) return onLiveClick(e);
     var a = e.target.closest('a');
     if (a) e.preventDefault();
     if (e.target.closest('form')) e.preventDefault();
@@ -911,8 +991,10 @@
       case 's-dup':
         return change(function () { var c = freshIds(clone(s.section)); s.list.splice(s.index + 1, 0, c); state.sel = { kind: 'section', id: c.id }; });
       case 's-del':
-        if (!confirm('Delete this whole section?')) return;
-        return change(function () { s.list.splice(s.index, 1); state.sel = null; });
+        return askConfirm('Delete this section?', 'This removes the whole section and everything in it. You can undo it afterwards.', 'Delete', true).then(function (ok) {
+          var cur = ok && findSection(id);
+          if (cur && cur.list) change(function () { cur.list.splice(cur.index, 1); state.sel = null; });
+        });
       case 's-select':
         select('section', id);
         if (isPhone()) openSheet('right');
@@ -992,9 +1074,16 @@
         onclick: function () {
           var el = document.activeElement;
           if (c[0] === 'link') {
-            var url = prompt('Link address — e.g. /contact/, https://example.com, mailto:you@example.com, tel:+17785551234');
-            if (!url) return;
-            document.execCommand('createLink', false, url);
+            var sel = window.getSelection();
+            var range = sel && sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+            askText('Add a link', 'Link to — a page like /contact/, a website https://…, mailto:email or tel:number', '', 'Add link').then(function (r) {
+              if (!r || !el || !el.getAttribute('data-edit')) return;
+              el.focus();
+              if (range) { var s2 = window.getSelection(); s2.removeAllRanges(); s2.addRange(range); }
+              document.execCommand('createLink', false, r.value);
+              onInlineInput(el);
+            });
+            return;
           } else document.execCommand(c[0], false, null);
           if (el && el.getAttribute('data-edit')) onInlineInput(el);
         }
@@ -1378,8 +1467,11 @@
     })(state.site);
   }
   function addPage() {
-    var name = prompt('Name of the new page (e.g. "Services")');
-    if (!name) return;
+    askText('New page', 'Page name (e.g. "Services")', '', 'Create page', 'Add it to the menu').then(function (r) {
+      if (r) createPage(r.value, r.checked);
+    });
+  }
+  function createPage(name, addNav) {
     var slug = slugify(name) || 'page', base = slug, n = 1;
     while (state.site.pages.some(function (p) { return p.slug === slug; })) slug = base + '-' + (++n);
     var p = { id: uid('p'), slug: slug, title: name, description: '', sections: [] };
@@ -1387,7 +1479,6 @@
     s.columns[0].blocks[0].level = 1;
     s.columns[0].blocks[0].text = name;
     p.sections.push(s);
-    var addNav = confirm('Add "' + name + '" to the menu?');
     change(function () {
       state.site.pages.push(p);
       if (addNav) state.site.nav.push({ label: name, href: pageUrl(p) });
@@ -1404,7 +1495,11 @@
   }
   function deletePage() {
     var p = page();
-    if (!confirm('Delete the page "' + p.title + '"? (You can undo this.)')) return;
+    askConfirm('Delete page?', 'Delete the page "' + p.title + '"? You can undo this afterwards.', 'Delete page', true).then(function (ok) {
+      if (ok) removePage(p);
+    });
+  }
+  function removePage(p) {
     var url = pageUrl(p);
     change(function () {
       state.site.pages.splice(state.site.pages.indexOf(p), 1);
@@ -1466,6 +1561,11 @@
         toast('Imported — press Save to keep it');
       }).catch(function (e) { toast('Import failed: ' + e.message, true); });
     } });
+    if (DEMO) {
+      body.appendChild(h('p', { class: 'fe-hint', style: 'margin:0' }, 'This is a test copy: changes are only kept on this device and never touch your real website.'));
+      body.appendChild(h('div', { class: 'fe-btns' }, h('button', { class: 'fe-btn danger', type: 'button', onclick: resetDemo }, 'Start the test over')));
+      return;
+    }
     body.appendChild(h('div', { class: 'fe-btns' },
       h('button', { class: 'fe-btn', type: 'button', onclick: function () { download('content.json', JSON.stringify(state.site, null, 2)); } }, 'Download backup'),
       h('button', { class: 'fe-btn', type: 'button', onclick: function () { importInput.click(); } }, 'Restore from file…'), importInput,
@@ -1479,10 +1579,25 @@
   }
 
   function discardChanges() {
-    if (!confirm('Throw away all changes since the last save?')) return;
-    pushUndo();
-    state.site = ensureIds(JSON.parse(state.savedJson));
-    afterHistory();
+    askConfirm('Discard changes?', 'Throw away everything you changed since you last published?', 'Discard', true).then(function (ok) {
+      if (!ok) return;
+      pushUndo();
+      state.site = ensureIds(JSON.parse(state.savedJson));
+      afterHistory();
+    });
+  }
+  function resetDemo() {
+    askConfirm('Start the test over?', 'This puts the test copy back to the original website.', 'Start over', true).then(function (ok) {
+      if (!ok) return;
+      try { localStorage.removeItem(DEMO_PUBLISHED_KEY); localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ }
+      state.site = ensureIds(clone(CFG.content));
+      state.savedJson = JSON.stringify(state.site);
+      state.undo = []; state.redo = []; state.sel = null;
+      state.pageId = state.site.pages[0].id;
+      markDirty();
+      renderAll();
+      toast('Back to the original website');
+    });
   }
 
   // ---------------------------------------------------------------- save / load
@@ -1503,6 +1618,14 @@
     if (saving) return;
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     var json = JSON.stringify(state.site, null, 2);
+    if (DEMO) {
+      state.savedJson = JSON.stringify(state.site);
+      try { localStorage.setItem(DEMO_PUBLISHED_KEY, state.savedJson); } catch (e) { /* storage full: kept until the page closes */ }
+      markDirty();
+      setVisitor(true);
+      toast('Published (test copy). This is how visitors would see it.');
+      return;
+    }
     if (!state.server) {
       download('content.json', json);
       state.savedJson = JSON.stringify(state.site);
@@ -1549,7 +1672,13 @@
 
     root.addEventListener('click', onCanvasClick);
     root.addEventListener('dblclick', onCanvasDblClick);
-    root.addEventListener('submit', function (e) { e.preventDefault(); });
+    root.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (state.preview || state.visitor) toast('Preview only: on the live website this sends the message.');
+    });
+    document.body.appendChild(h('div', { id: 'fe-visit-bar' },
+      h('span', null, DEMO ? 'Test copy · changes stay on this device' : 'Preview'),
+      h('button', { type: 'button', onclick: function () { setVisitor(false); } }, '✎ Edit')));
     root.addEventListener('dragstart', function (e) { e.preventDefault(); });
     root.addEventListener('input', function (e) { if (e.target.getAttribute && e.target.getAttribute('data-edit')) onInlineInput(e.target); });
     root.addEventListener('focusin', function (e) { if (e.target.getAttribute && e.target.getAttribute('data-edit')) { inlineSession = false; positionFormatBar(); } });
@@ -1578,7 +1707,7 @@
       if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); return; }
       if (mod && e.key.toLowerCase() === 'z' && !/^(INPUT|TEXTAREA)$/.test(t.tagName)) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
       if (mod && e.key.toLowerCase() === 'y' && !/^(INPUT|TEXTAREA)$/.test(t.tagName)) { e.preventDefault(); redo(); return; }
-      if (typing || $('.fe-modal-back')) return;
+      if (typing || $('.fe-modal-back') || state.visitor) return;
       if (e.key === 'Escape') { if (drag) cleanupDrag(); else select(null); }
       if (!state.sel) return;
       if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); doAct(state.sel.kind === 'block' ? 'b-del' : 's-del', state.sel.id); }
@@ -1586,13 +1715,18 @@
     });
     window.addEventListener('beforeunload', function (e) { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
-    ping().then(function (p) {
+    (DEMO ? Promise.resolve(null) : ping()).then(function (p) {
       state.server = !!(p && p.ok);
       state.mode = p && p.mode;
       state.passwordRequired = !!(p && p.passwordRequired);
       if (p && p.configured === false) throw new Error('The online editor is not set up yet: add EDITOR_PASSWORD and GITHUB_TOKEN in Cloudflare (see README).');
       if (state.server && state.passwordRequired && !p.authorized) return login();
     }).then(function () {
+      if (DEMO) {
+        var stored = null;
+        try { stored = JSON.parse(localStorage.getItem(DEMO_PUBLISHED_KEY) || 'null'); } catch (e) { /* ignore */ }
+        return stored || clone(CFG.content);
+      }
       var url = state.server ? '/api/content' : '/content.json';
       return fetch(url, { cache: 'no-store', headers: authHeaders() }).then(function (r) {
         if (!r.ok) return r.json().catch(function () { return {}; }).then(function (j) { throw new Error(j.error || 'content.json not found'); });
@@ -1603,16 +1737,19 @@
       state.savedJson = JSON.stringify(state.site);
       var draft = null;
       try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { /* ignore */ }
-      if (draft && draft.json && draft.json !== state.savedJson) {
-        if (confirm('You have unpublished changes from ' + new Date(draft.at).toLocaleString() + '. Restore them?')) {
-          state.site = ensureIds(JSON.parse(draft.json));
-        } else localStorage.removeItem(DRAFT_KEY);
-      }
-      var m = location.hash.match(/page=([^&]+)/);
+      if (!draft || !draft.json || draft.json === state.savedJson) return;
+      if (DEMO) { state.site = ensureIds(JSON.parse(draft.json)); return; }
+      return askConfirm('Restore unpublished changes?', 'You have changes from ' + new Date(draft.at).toLocaleString() + ' that were never published.', 'Restore').then(function (ok) {
+        if (ok) state.site = ensureIds(JSON.parse(draft.json));
+        else { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ } }
+      });
+    }).then(function () {
+      var m = DEMO ? null : location.hash.match(/page=([^&]+)/);
       state.pageId = m && state.site.pages.some(function (p) { return p.id === decodeURIComponent(m[1]); }) ? decodeURIComponent(m[1]) : state.site.pages[0].id;
       state.dirty = JSON.stringify(state.site) !== state.savedJson;
+      if (DEMO) state.visitor = true;
       renderAll();
-      if (!state.server) toast('Editing offline — Save will download content.json. Run "node server.js" to save directly.');
+      if (!state.server && !DEMO) toast('Editing offline — Save will download content.json. Run "node server.js" to save directly.');
     }).catch(function (e) {
       root.innerHTML = '<div style="padding:60px;font-family:system-ui">Could not load the site content: ' + esc(e.message) + '<br>Start the editor with <code>node server.js</code> and open <code>http://localhost:8080/editor</code>.</div>';
     });
