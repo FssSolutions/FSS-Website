@@ -17,8 +17,12 @@
   var state = {
     site: null, pageId: null, sel: null, tab: 'selection',
     undo: [], redo: [], dirty: false, server: false, passwordRequired: false,
-    mobile: false, preview: false, savedJson: ''
+    mobile: false, preview: false, savedJson: '', mode: null,
+    pending: {},   // new photos not yet published: path -> File
+    blobUrls: {}   // path -> object URL so new photos show before they are published
   };
+  var PW_KEY = 'fss-editor-pw';
+  var isPhone = function () { return window.matchMedia('(max-width: 820px)').matches; };
 
   // ---------------------------------------------------------------- helpers
   function $(s, el) { return (el || document).querySelector(s); }
@@ -264,6 +268,7 @@
     root.classList.toggle('fe-edit', !state.preview);
     if (!state.preview) decorate();
     else wirePreview();
+    showPendingImages();
     applySelection();
     stage.scrollTop = st;
     document.title = 'Editing: ' + (page().title || 'Page') + ' — Site Editor';
@@ -345,14 +350,15 @@
       '<span class="fe-spacer"></span>' +
       '<span class="fe-status" id="fe-status"></span>' +
       '<a class="fe-tbtn" href="' + esc(pageUrl(page())) + '" target="_blank" rel="noopener" title="Open the saved version of this page">' + icon('external') + '<span class="fe-label">View site</span></a>' +
-      '<button class="fe-tbtn fe-save" data-top="save" title="Save (Ctrl+S)">' + (state.server ? 'Save & Publish' : 'Save') + '</button>';
+      '<button class="fe-tbtn fe-save" data-top="save" title="Publish (Ctrl+S)">' + (state.server ? 'Publish' : 'Save') + '</button>';
     $('#fe-page').addEventListener('change', function (e) { goToPage(e.target.value); });
     renderStatus();
   }
   function renderStatus() {
     var s = $('#fe-status');
     if (!s) return;
-    s.textContent = state.dirty ? '● Unsaved changes' : 'All changes saved';
+    s.textContent = state.dirty ? '● Unpublished changes' : 'All changes published';
+    document.body.classList.toggle('fe-dirty', state.dirty);
     s.classList.toggle('dirty', state.dirty);
     var u = $('[data-top="undo"]'), r = $('[data-top="redo"]');
     if (u) u.disabled = !state.undo.length;
@@ -377,7 +383,21 @@
     else if (a === 'preview') { state.preview = !state.preview; renderTopbar(); renderCanvas(); }
     else if (a === 'save') save();
     else if (a === 'add-page') addPage();
-    else if (a === 'page-settings') { state.tab = 'page'; renderInspector(); }
+    else if (a === 'page-settings') { state.tab = 'page'; renderInspector(); if (isPhone()) openSheet('right'); }
+  });
+
+  // ---------------------------------------------------------------- phone layout: panels become bottom sheets
+  function openSheet(which) {
+    document.body.classList.toggle('fe-sheet-left', which === 'left');
+    document.body.classList.toggle('fe-sheet-right', which === 'right');
+    $$('[data-dock]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-dock') === which); });
+  }
+  function closeSheets() { if (isPhone()) openSheet(null); }
+  document.addEventListener('click', function (e) {
+    var d = e.target.closest('[data-dock]');
+    if (!d) return;
+    var which = d.getAttribute('data-dock');
+    openSheet(document.body.classList.contains('fe-sheet-' + which) ? null : which);
   });
 
   // ---------------------------------------------------------------- left panel (palette)
@@ -393,13 +413,14 @@
         cols.map(function () { return '<i></i>'; }).join('') + '</div>';
       return '<div class="fe-sec-item" data-new-section="' + t.key + '" title="Drag onto the page, or click to add">' + thumb + '<div><b>' + esc(t.label) + '</b><small>' + esc(t.desc) + '</small></div></div>';
     }).join('');
-    left.innerHTML = '<div class="fe-panel-h">Blocks</div><p class="fe-hint">Drag onto the page, or click to add after the selected item.</p>' +
+    left.innerHTML = '<div class="fe-panel-h">Blocks</div><p class="fe-hint">Drag onto the page, or tap to add after the selected item.</p>' +
       '<div class="fe-palette">' + blocks + '</div>' +
       '<div class="fe-panel-h">Sections</div><div class="fe-sec-list">' + secs + '</div>';
   }
 
   // Click-to-add from the palette
   function addBlockSmart(type) {
+    closeSheets();
     var b = newBlock(type), target = null;
     if (state.sel && state.sel.kind === 'block') {
       var loc = findBlock(state.sel.id);
@@ -421,6 +442,7 @@
     scrollIntoView('[data-block-id="' + b.id + '"]');
   }
   function addSectionSmart(key) {
+    closeSheets();
     var s = newSection(SECTIONS.filter(function (t) { return t.key === key; })[0]);
     var list = page().sections, index = list.length;
     if (state.sel) {
@@ -451,6 +473,7 @@
     if (!drag.started) {
       if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) < 6) return;
       drag.started = true;
+      closeSheets();
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       document.body.classList.add('fe-dragging');
       ghost.textContent = drag.payload.label;
@@ -668,9 +691,49 @@
   // ---------------------------------------------------------------- uploads & image picker
   function authHeaders(extra) {
     var hd = Object.assign({}, extra || {});
-    var pw = sessionStorage.getItem('fss-editor-pw');
+    var pw = getPassword();
     if (pw) hd['X-Editor-Password'] = pw;
     return hd;
+  }
+  function getPassword() {
+    try { return sessionStorage.getItem(PW_KEY) || localStorage.getItem(PW_KEY) || ''; } catch (e) { return ''; }
+  }
+  function setPassword(pw, remember) {
+    try {
+      sessionStorage.setItem(PW_KEY, pw);
+      if (remember) localStorage.setItem(PW_KEY, pw); else localStorage.removeItem(PW_KEY);
+    } catch (e) { /* private mode */ }
+  }
+  function forgetPassword() {
+    try { sessionStorage.removeItem(PW_KEY); localStorage.removeItem(PW_KEY); } catch (e) { /* ignore */ }
+  }
+  function ping() {
+    return fetch('/api/ping', { headers: authHeaders(), cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+  // Password screen. Resolves once the server accepts the password.
+  function login(message) {
+    return new Promise(function (resolve) {
+      var input = h('input', { class: 'fe-input', type: 'password', autocomplete: 'current-password', placeholder: 'Editor password', style: 'font-size:16px' });
+      var remember = h('input', { type: 'checkbox', checked: true });
+      var err = h('p', { class: 'fe-hint', style: 'color:#b3261e;margin:8px 0 0;min-height:1em' }, message || '');
+      var m;
+      function go() {
+        if (!input.value) return;
+        setPassword(input.value, remember.checked);
+        err.textContent = 'Checking…';
+        ping().then(function (p) {
+          if (p && p.authorized) { m.close(); resolve(); }
+          else { forgetPassword(); err.textContent = 'That password is not right.'; input.select(); }
+        });
+      }
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      m = modal('Sign in to edit your website', [
+        h('form', { onsubmit: function (e) { e.preventDefault(); go(); } }, input,
+          h('label', { class: 'fe-check' }, remember, 'Remember me on this device'), err)
+      ], [h('button', { class: 'fe-btn primary', type: 'button', onclick: go }, 'Sign in')], { locked: true });
+      setTimeout(function () { input.focus(); }, 50);
+    });
   }
   function prepareImage(file) {
     if (!/^image\/(jpeg|png|webp)$/.test(file.type) || !window.createImageBitmap) return Promise.resolve(file);
@@ -698,19 +761,35 @@
           fr.readAsDataURL(f);
         });
       }
-      return fetch('/api/upload?name=' + encodeURIComponent(f.name), { method: 'POST', body: f, headers: authHeaders({ 'Content-Type': f.type }) })
-        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.status); return j.src; }); });
+      // Kept in the browser and sent with the next Publish, in the same save as the text.
+      var ext = (f.name.match(/\.(jpe?g|png|webp|gif)$/i) || ['.jpg'])[0].toLowerCase();
+      var base = slugify(f.name.replace(/\.[^.]+$/, '')).slice(0, 40) || 'photo';
+      var p = 'assets/uploads/' + base + '-' + Math.random().toString(36).slice(2, 7) + ext;
+      state.pending[p] = f;
+      state.blobUrls[p] = URL.createObjectURL(f);
+      return p;
     });
   }
   function libraryImages() {
     var used = {};
     JSON.stringify(state.site).replace(/"((?:assets\/|https?:)[^"]+?\.(?:jpe?g|png|gif|webp|svg|avif))"/gi, function (m, s) { used[s] = 1; return m; });
+    Object.keys(state.pending).forEach(function (k) { used[k] = 1; });
     if (!state.server) return Promise.resolve(Object.keys(used));
     return fetch('/api/images', { headers: authHeaders() }).then(function (r) { return r.json(); })
       .then(function (j) { (j.images || []).forEach(function (s) { used[s] = 1; }); return Object.keys(used); })
       .catch(function () { return Object.keys(used); });
   }
-  function imgUrl(src) { return /^(https?:|data:|blob:|\/)/.test(src) ? src : '/' + src; }
+  function imgUrl(src) {
+    if (state.blobUrls[src]) return state.blobUrls[src];
+    return /^(https?:|data:|blob:|\/)/.test(src) ? src : '/' + src;
+  }
+  // Swap in local copies of photos that haven't been published yet.
+  function showPendingImages() {
+    $$('img', root).forEach(function (img) {
+      var k = (img.getAttribute('src') || '').replace(/^\//, '');
+      if (state.blobUrls[k]) img.src = state.blobUrls[k];
+    });
+  }
 
   // Opens the image picker; cb receives an array of srcs.
   function pickImages(opts, cb) {
@@ -745,15 +824,16 @@
     });
   }
 
-  function modal(title, body, footer) {
+  function modal(title, body, footer, opts) {
+    opts = opts || {};
     var back = h('div', { class: 'fe-modal-back' });
     var close = function () { back.remove(); document.removeEventListener('keydown', key); };
-    var key = function (e) { if (e.key === 'Escape') close(); };
+    var key = function (e) { if (e.key === 'Escape' && !opts.locked) close(); };
     back.appendChild(h('div', { class: 'fe-modal', role: 'dialog' },
-      h('div', { class: 'fe-modal-h' }, h('b', null, title), h('button', { class: 'fe-btn small', type: 'button', onclick: close }, 'Close')),
+      h('div', { class: 'fe-modal-h' }, h('b', null, title), opts.locked ? null : h('button', { class: 'fe-btn small', type: 'button', onclick: close }, 'Close')),
       h('div', { class: 'fe-modal-b' }, body),
       footer ? h('div', { class: 'fe-modal-f' }, footer) : null));
-    back.addEventListener('mousedown', function (e) { if (e.target === back) close(); });
+    if (!opts.locked) back.addEventListener('mousedown', function (e) { if (e.target === back) close(); });
     document.addEventListener('keydown', key);
     $('#fe-modal-root').appendChild(back);
     return { close: close, el: back };
@@ -834,7 +914,9 @@
         if (!confirm('Delete this whole section?')) return;
         return change(function () { s.list.splice(s.index, 1); state.sel = null; });
       case 's-select':
-        return select('section', id);
+        select('section', id);
+        if (isPhone()) openSheet('right');
+        return;
     }
   }
   // Moving past the top/bottom of a column jumps to the previous/next section.
@@ -950,6 +1032,7 @@
     else if (state.sel && state.sel.kind === 'section' && findSection(state.sel.id)) sectionInspector(body, findSection(state.sel.id));
     else body.appendChild(h('div', null,
       h('h3', null, 'Nothing selected'),
+      isPhone() ? h('div', { class: 'fe-note', html: '<b>On a phone</b><br>• Tap <b>+ Add</b> below, then tap a block or section to add it.<br>• Tap something on the page, then <b>Settings</b> to change it.<br>• Hold and drag the <b>⠿</b> handle to move things, or use the ↑ ↓ buttons.' }) : null,
       h('div', { class: 'fe-note', html:
         '<b>How to edit</b><br>• <b>Click any text</b> on the page and type.<br>• <b>Click</b> a block or section to see its settings here.<br>' +
         '• <b>Drag</b> blocks and sections in from the left.<br>• Drag the <b>⠿ handle</b> to move things around.<br>' +
@@ -1387,9 +1470,12 @@
       h('button', { class: 'fe-btn', type: 'button', onclick: function () { download('content.json', JSON.stringify(state.site, null, 2)); } }, 'Download backup'),
       h('button', { class: 'fe-btn', type: 'button', onclick: function () { importInput.click(); } }, 'Restore from file…'), importInput,
       h('button', { class: 'fe-btn danger', type: 'button', onclick: discardChanges }, 'Discard unsaved changes')));
-    body.appendChild(h('p', { class: 'fe-hint', style: 'margin:0' }, state.server
-      ? 'Every save also keeps the previous version in the .backups folder.'
+    body.appendChild(h('p', { class: 'fe-hint', style: 'margin:0' }, state.mode === 'cloud'
+      ? 'Every Publish is saved in GitHub, so any earlier version can be brought back.'
+      : state.server ? 'Every save also keeps the previous version in the .backups folder.'
       : 'Running without the editing server: Save downloads content.json for you to put in the website folder.'));
+    if (state.passwordRequired) body.appendChild(h('div', { class: 'fe-btns' },
+      h('button', { class: 'fe-btn', type: 'button', onclick: function () { forgetPassword(); location.reload(); } }, 'Sign out')));
   }
 
   function discardChanges() {
@@ -1404,7 +1490,17 @@
     var a = h('a', { href: URL.createObjectURL(new Blob([text], { type: 'application/json' })), download: name });
     document.body.appendChild(a); a.click(); a.remove();
   }
+  function blobToBase64(blob) {
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { res(String(fr.result).split(',')[1]); };
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+  }
+  var saving = false;
   function save() {
+    if (saving) return;
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     var json = JSON.stringify(state.site, null, 2);
     if (!state.server) {
@@ -1414,24 +1510,31 @@
       toast('Downloaded content.json — copy it into the website folder, then run "node build.js".');
       return;
     }
+    saving = true;
     var btn = $('[data-top="save"]');
-    if (btn) btn.textContent = 'Saving…';
-    fetch('/api/content', { method: 'POST', body: json, headers: authHeaders({ 'Content-Type': 'application/json' }) })
-      .then(function (r) {
-        return r.json().then(function (j) {
-          if (r.status === 401) {
-            var pw = prompt('Editor password:');
-            if (pw) { sessionStorage.setItem('fss-editor-pw', pw); return save(); }
-            throw new Error('Password required');
-          }
-          if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
-          state.savedJson = JSON.stringify(state.site);
-          markDirty();
-          toast('Saved. The website in dist/ has been rebuilt.');
-        });
+    if (btn) btn.textContent = 'Publishing…';
+    var compact = JSON.stringify(state.site);
+    var paths = Object.keys(state.pending).filter(function (p) { return compact.indexOf('"' + p + '"') >= 0; });
+    Promise.all(paths.map(function (p) { return blobToBase64(state.pending[p]).then(function (d) { return { path: p, data: d }; }); }))
+      .then(function (files) {
+        return fetch('/api/save', { method: 'POST', body: JSON.stringify({ content: state.site, files: files }), headers: authHeaders({ 'Content-Type': 'application/json' }) })
+          .then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (j) {
+              if (r.status === 401) { forgetPassword(); return login('Please sign in again.').then(function () { return 'retry'; }); }
+              if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+              paths.forEach(function (p) { delete state.pending[p]; });
+              state.savedJson = compact;
+              markDirty();
+              toast(state.mode === 'cloud' ? 'Published! Your live website updates in about a minute.' : 'Saved. The website in dist/ has been rebuilt.');
+            });
+          });
       })
-      .catch(function (e) { toast('Save failed: ' + e.message, true); })
-      .then(function () { var b = $('[data-top="save"]'); if (b) b.textContent = 'Save & Publish'; });
+      .catch(function (e) { toast('Publish failed: ' + e.message, true); })
+      .then(function (result) {
+        saving = false;
+        var b = $('[data-top="save"]'); if (b) b.textContent = 'Publish';
+        if (result === 'retry') save();
+      });
   }
 
   function boot() {
@@ -1483,22 +1586,25 @@
     });
     window.addEventListener('beforeunload', function (e) { if (state.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
-    Promise.all([
-      fetch('/api/ping').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch('/content.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('content.json not found'); return r.json(); })
-    ]).then(function (res) {
-      state.server = !!(res[0] && res[0].ok);
-      state.passwordRequired = !!(res[0] && res[0].passwordRequired);
-      if (state.passwordRequired && !sessionStorage.getItem('fss-editor-pw')) {
-        var pw = prompt('Editor password:');
-        if (pw) sessionStorage.setItem('fss-editor-pw', pw);
-      }
-      state.site = ensureIds(res[1]);
+    ping().then(function (p) {
+      state.server = !!(p && p.ok);
+      state.mode = p && p.mode;
+      state.passwordRequired = !!(p && p.passwordRequired);
+      if (p && p.configured === false) throw new Error('The online editor is not set up yet: add EDITOR_PASSWORD and GITHUB_TOKEN in Cloudflare (see README).');
+      if (state.server && state.passwordRequired && !p.authorized) return login();
+    }).then(function () {
+      var url = state.server ? '/api/content' : '/content.json';
+      return fetch(url, { cache: 'no-store', headers: authHeaders() }).then(function (r) {
+        if (!r.ok) return r.json().catch(function () { return {}; }).then(function (j) { throw new Error(j.error || 'content.json not found'); });
+        return r.json();
+      });
+    }).then(function (content) {
+      state.site = ensureIds(content);
       state.savedJson = JSON.stringify(state.site);
       var draft = null;
       try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) { /* ignore */ }
       if (draft && draft.json && draft.json !== state.savedJson) {
-        if (confirm('You have unsaved changes from ' + new Date(draft.at).toLocaleString() + '. Restore them?')) {
+        if (confirm('You have unpublished changes from ' + new Date(draft.at).toLocaleString() + '. Restore them?')) {
           state.site = ensureIds(JSON.parse(draft.json));
         } else localStorage.removeItem(DRAFT_KEY);
       }

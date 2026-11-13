@@ -69,6 +69,14 @@ function build(site, outDir) {
   fs.mkdirSync(path.join(outDir, 'js'), { recursive: true });
   fs.copyFileSync(path.join(ROOT, 'js', 'site.js'), path.join(outDir, 'js', 'site.js'));
 
+  // The editor, at /editor/ (it saves through functions/api/ on Cloudflare).
+  fs.copyFileSync(path.join(ROOT, 'js', 'render.js'), path.join(outDir, 'js', 'render.js'));
+  fs.copyFileSync(path.join(ROOT, 'js', 'editor.js'), path.join(outDir, 'js', 'editor.js'));
+  fs.mkdirSync(path.join(outDir, 'editor'), { recursive: true });
+  fs.copyFileSync(path.join(ROOT, 'editor.html'), path.join(outDir, 'editor', 'index.html'));
+  fs.writeFileSync(path.join(outDir, '_headers'),
+    '/editor/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-store\n/js/editor.js\n  Cache-Control: no-cache\n/js/render.js\n  Cache-Control: no-cache\n/css/*\n  Cache-Control: no-cache\n');
+
   const urls = [];
   for (const page of site.pages || []) {
     const slug = String(page.slug || '').replace(/^\/+|\/+$/g, '');
@@ -92,7 +100,7 @@ function build(site, outDir) {
     fs.writeFileSync(path.join(outDir, 'sitemap.xml'),
       '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       urls.map(u => `  <url><loc>${esc(base + u)}</loc></url>`).join('\n') + '\n</urlset>\n');
-    fs.writeFileSync(path.join(outDir, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
+    fs.writeFileSync(path.join(outDir, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /editor/\nSitemap: ${base}/sitemap.xml\n`);
   }
   return { pages: (site.pages || []).length, outDir };
 }

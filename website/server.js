@@ -7,6 +7,7 @@
  *
  * Saving in the editor writes content.json (a backup of the previous version is
  * kept in .backups/) and rebuilds the publishable static site in dist/.
+ * (The live website uses functions/api/ on Cloudflare instead — see README.)
  * No npm install needed — only Node.js 16+.
  *
  * This server is meant to run on your own computer. It listens on localhost only,
@@ -25,7 +26,6 @@ const HOST = process.env.HOST || '127.0.0.1';
 const PASSWORD = process.env.EDITOR_PASSWORD || '';
 const CONTENT = path.join(ROOT, 'content.json');
 const UPLOADS = path.join(ROOT, 'assets', 'uploads');
-const MAX_UPLOAD = 25 * 1024 * 1024;
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -73,17 +73,29 @@ function listImages() {
   return out;
 }
 
-async function api(req, res, url) {
-  if (url.pathname === '/api/ping') return send(res, 200, { ok: true, passwordRequired: !!PASSWORD });
-  if (!authorised(req)) return send(res, 401, { error: 'Wrong or missing editor password' });
+const UPLOAD_RE = /^assets\/uploads\/[a-z0-9][a-z0-9-]{0,80}\.(jpe?g|png|webp|gif)$/;
 
+// Same API as the online editor (functions/api/*), but saves to this folder.
+async function api(req, res, url) {
+  if (url.pathname === '/api/ping') {
+    return send(res, 200, { ok: true, mode: 'local', passwordRequired: !!PASSWORD, configured: true, authorized: authorised(req) });
+  }
+  if (url.pathname === '/api/content' && req.method === 'GET') return serveFile(res, CONTENT);
   if (url.pathname === '/api/images' && req.method === 'GET') return send(res, 200, { images: listImages() });
 
-  if (url.pathname === '/api/content' && req.method === 'POST') {
-    let site;
-    try { site = JSON.parse((await readBody(req, 10 * 1024 * 1024)).toString('utf8')); }
-    catch (e) { return send(res, 400, { error: 'Invalid JSON' }); }
-    if (!site || !Array.isArray(site.pages)) return send(res, 400, { error: 'Content must have a pages list' });
+  if (url.pathname === '/api/save' && req.method === 'POST') {
+    if (!authorised(req)) return send(res, 401, { error: 'Wrong or missing editor password' });
+    let body;
+    try { body = JSON.parse((await readBody(req, 200 * 1024 * 1024)).toString('utf8')); }
+    catch (e) { return send(res, 400, { error: 'Invalid request' }); }
+    const site = body && body.content;
+    if (!site || !Array.isArray(site.pages) || !site.pages.length) return send(res, 400, { error: 'Content must have at least one page' });
+    const files = Array.isArray(body.files) ? body.files : [];
+    for (const f of files) {
+      if (!f || !UPLOAD_RE.test(f.path || '') || typeof f.data !== 'string') return send(res, 400, { error: 'Invalid file: ' + (f && f.path) });
+    }
+    fs.mkdirSync(UPLOADS, { recursive: true });
+    for (const f of files) fs.writeFileSync(path.join(ROOT, f.path), Buffer.from(f.data, 'base64'));
     // Keep a backup of the previous version
     const backups = path.join(ROOT, '.backups');
     fs.mkdirSync(backups, { recursive: true });
@@ -94,25 +106,6 @@ async function api(req, res, url) {
     try { build(site); }
     catch (e) { return send(res, 500, { error: 'Saved, but the build failed: ' + e.message }); }
     return send(res, 200, { ok: true, savedAt: new Date().toISOString() });
-  }
-
-  if (url.pathname === '/api/upload' && req.method === 'POST') {
-    const original = String(url.searchParams.get('name') || 'image.jpg');
-    const ext = path.extname(original).toLowerCase();
-    if (!IMAGE_EXT.includes(ext)) return send(res, 400, { error: 'Only image files can be uploaded' });
-    let data;
-    try { data = await readBody(req, MAX_UPLOAD); } catch (e) { return send(res, 413, { error: 'Image is larger than 25 MB' }); }
-    const base = path.basename(original, path.extname(original)).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'image';
-    fs.mkdirSync(UPLOADS, { recursive: true });
-    let name = base + ext, i = 1;
-    while (fs.existsSync(path.join(UPLOADS, name))) name = base + '-' + (++i) + ext;
-    fs.writeFileSync(path.join(UPLOADS, name), data);
-    return send(res, 200, { src: 'assets/uploads/' + name });
-  }
-
-  if (url.pathname === '/api/backups' && req.method === 'GET') {
-    const dir = path.join(ROOT, '.backups');
-    return send(res, 200, { backups: fs.existsSync(dir) ? fs.readdirSync(dir).sort().reverse() : [] });
   }
 
   send(res, 404, { error: 'Not found' });
