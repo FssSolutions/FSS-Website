@@ -24,14 +24,14 @@ The editor uses this key to save your changes to GitHub.
 
 1. On github.com go to **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
 2. **Name:** `fsssolutions website editor`. **Expiration:** 1 year, and put a reminder in your calendar to renew it.
-3. **Resource owner:** `fsssolutions`. **Repository access:** *Only select repositories* → `FSS-website`.
+3. **Resource owner:** `fsssolutions`. **Repository access:** *Only select repositories* → `FSS-Website`.
 4. **Permissions → Repository permissions → Contents:** *Read and write*.
 5. Generate it and copy the key (it starts with `github_pat_`). You only see it once.
    *If GitHub says the token needs approval, approve it under the fsssolutions organization's Settings → Personal access tokens.*
 
 ### 3. Create the site on Cloudflare
 1. Make a free account at [dash.cloudflare.com](https://dash.cloudflare.com).
-2. Go to **Workers & Pages → Create → Pages → Connect to Git**. Allow access to GitHub and pick the `fsssolutions/FSS-website` repository.
+2. Go to **Workers & Pages → Create → Pages → Connect to Git**. Allow access to GitHub and pick the `fsssolutions/FSS-Website` repository.
 3. Build settings:
    - **Production branch:** `main`
    - **Framework preset:** None

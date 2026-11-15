@@ -6,7 +6,7 @@
  * Environment variables (Cloudflare Pages → Settings → Variables and Secrets):
  *   EDITOR_PASSWORD  (secret)  password for /editor
  *   GITHUB_TOKEN     (secret)  fine-grained token with "Contents: read and write" on the repo
- *   GITHUB_REPO      optional, default "fsssolutions/FSS-website"
+ *   GITHUB_REPO      optional, default "fsssolutions/FSS-Website"
  *   GITHUB_BRANCH    optional, default "main" (must be the branch Cloudflare publishes)
  *   SITE_DIR         optional, default "website" (folder of the site inside the repo)
  */
@@ -14,7 +14,7 @@ const API = 'https://api.github.com';
 
 export function cfg(env) {
   return {
-    repo: env.GITHUB_REPO || 'fsssolutions/FSS-website',
+    repo: env.GITHUB_REPO || 'fsssolutions/FSS-Website',
     branch: env.GITHUB_BRANCH || 'main',
     dir: (env.SITE_DIR == null ? 'website' : env.SITE_DIR).replace(/^\/+|\/+$/g, ''),
     token: env.GITHUB_TOKEN || '',
