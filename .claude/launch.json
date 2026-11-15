@@ -2,14 +2,6 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "ironbound",
-      "runtimeExecutable": "node",
-      "runtimeArgs": [
-        "ironbound/server.js"
-      ],
-      "port": 3000
-    },
-    {
       "name": "fss-website",
       "runtimeExecutable": "node",
       "runtimeArgs": [

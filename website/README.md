@@ -16,8 +16,8 @@ You edit at fsssolutions.ca/editor ──Publish──▶ GitHub (content.json +
 
 Do the steps in order. The old Squarespace site keeps working until step 5.
 
-### 1. Put the website on the `main` branch
-Cloudflare publishes the `main` branch. Merge the pull request that adds the `website/` folder.
+### 1. The website is on the `main` branch
+Cloudflare publishes the `main` branch, where the `website/` folder already is. Nothing to do here.
 
 ### 2. Create a GitHub access key for the editor
 The editor uses this key to save your changes to GitHub.
@@ -43,7 +43,6 @@ The editor uses this key to save your changes to GitHub.
    - `EDITOR_PASSWORD`: a long password you'll use to sign in to the editor (e.g. four random words).
    - `GITHUB_TOKEN`: the key from step 2.
 6. Go to **Deployments**, open the latest one, choose **Retry deployment** so the secrets take effect, then open `https://<your-project>.pages.dev/editor/` and sign in.
-   - *Optional:* under **Settings → Build → Build watch paths**, include only `website/*`. Then changes to the rest of the repo don't rebuild the site.
 
 ### 4. Move the domain's DNS to Cloudflare (keeps your email working)
 Your domain is registered at **GoDaddy**. Its DNS currently points to Squarespace, and your email (Riley@fsssolutions.ca) is Microsoft 365 through GoDaddy.
