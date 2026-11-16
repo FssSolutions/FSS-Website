@@ -788,7 +788,7 @@
   function prepareImage(file) {
     if (!/^image\/(jpeg|png|webp)$/.test(file.type) || !window.createImageBitmap) return Promise.resolve(file);
     return createImageBitmap(file, { imageOrientation: 'from-image' }).then(function (bmp) {
-      var max = CFG.maxImage || 2000, scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      var max = CFG.maxImage || 1800, scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
       if (scale === 1 && file.size < 1.5e6) return file;
       var c = document.createElement('canvas');
       c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
@@ -797,7 +797,7 @@
       return new Promise(function (res) {
         c.toBlob(function (blob) {
           res(new File([blob], file.name.replace(/\.[^.]+$/, '') + (png ? '.png' : '.jpg'), { type: blob.type }));
-        }, png ? 'image/png' : 'image/jpeg', 0.85);
+        }, png ? 'image/png' : 'image/jpeg', 0.82);
       });
     }).catch(function () { return file; });
   }
@@ -1257,6 +1257,17 @@
   }
 
   // Editable list of objects (cards, gallery photos, links, form fields, menu items)
+  // A list of short text lines edited as one box, one item per line.
+  function fLines(label, obj, key, hint) {
+    var ta = h('textarea', { rows: 5,
+      onfocus: function () { editSession = false; },
+      onblur: function () { editSession = false; },
+      oninput: function (e) {
+        commitField(obj, key, e.target.value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean), { keepEmpty: true });
+      } });
+    ta.value = (obj[key] || []).join('\n');
+    return wrap(label, ta, hint);
+  }
   function fList(label, arr, opts) {
     var box = h('div', { class: 'fe-field' }, h('span', null, label));
     arr.forEach(function (item, i) {
@@ -1293,7 +1304,12 @@
     switch (b.type) {
       case 'heading':
         f.push(h('div', { class: 'fe-note' }, 'Click the heading on the page to change its words.'));
-        f.push(fSeg('Size', b, 'level', [[1, 'XL', 'Page title (H1)'], [2, 'L', 'Section title (H2)'], [3, 'M', 'Sub-heading (H3)'], [4, 'S', 'Small heading (H4)']], { set: function (v) { b.level = Number(v); } }));
+        f.push(fSeg('Size', b, 'look', [[1, 'XL'], [2, 'L'], [3, 'M'], [4, 'S']], { def: String(b.level || 2), set: function (v) { b.look = Number(v); } }));
+        f.push(fSelect('Heading type (for Google)', b, 'level', [[1, 'Main page heading (H1)'], [2, 'Section heading (H2)'], [3, 'Sub-heading (H3)'], [4, 'Minor heading (H4)']], {
+          def: '2', reinspect: true,
+          set: function (v) { var look = b.look || b.level || 2; b.level = Number(v); b.look = look; },
+          hint: 'Does not change how it looks. Each page should have exactly one main heading: say what you do and where.'
+        }));
         break;
       case 'text':
         f.push(h('div', { class: 'fe-note' }, 'Click the text on the page to type. Select words to make them bold, italic or a link. Press Enter for a new paragraph.'));
@@ -1427,7 +1443,15 @@
     var p = page();
     var isHome = !p.slug;
     body.appendChild(h('h3', null, 'Page settings'));
-    body.appendChild(fText('Page name', p, 'title', { keepEmpty: true, hint: p.fullTitle ? 'Used as the full browser-tab title.' : 'Browser tab shows: "' + p.title + (state.site.settings.titleSuffix || '') + '"', onblur: renderTopbar }));
+    body.appendChild(fText('Page name', p, 'title', { keepEmpty: true, hint: 'Shown in the editor\'s page list.', onblur: renderTopbar }));
+    var defaultTitle = p.fullTitle ? p.title : p.title + (state.site.settings.titleSuffix || '');
+    body.appendChild(fText('Google title', p, 'seoTitle', { placeholder: defaultTitle,
+      hint: 'The blue link Google shows, and the browser-tab name. Best: what you do + where + your name, under about 60 characters.' }));
+    var mains = 0;
+    p.sections.forEach(function (s) { s.columns.forEach(function (c) { c.blocks.forEach(function (b) { if (b.type === 'heading' && (parseInt(b.level, 10) || 2) === 1) mains++; }); }); });
+    if (mains !== 1) body.appendChild(h('div', { class: 'fe-note' }, mains === 0
+      ? 'Tip for Google: this page has no main heading. Select its most important heading and set "Heading type" to Main page heading.'
+      : 'Tip for Google: this page has ' + mains + ' main headings. Keep one as "Main page heading" and set the others to "Section heading" (they will look the same).'));
     if (isHome) body.appendChild(h('div', { class: 'fe-field' }, h('span', null, 'Address'), h('div', null, '/ (home page)')));
     else body.appendChild(fText('Address', p, 'slug', {
       lazy: true, hint: 'The page lives at ' + pageUrl(p),
@@ -1532,6 +1556,16 @@
     s.headerButton = s.headerButton || {};
     body.appendChild(fText('Menu button text (optional)', s.headerButton, 'label', { placeholder: 'e.g. Get a Quote' }));
     body.appendChild(fLink('Menu button link', s.headerButton, 'href'));
+
+    var biz = state.site.business = state.site.business || {};
+    body.appendChild(h('h4', null, 'For Google & AI assistants'));
+    body.appendChild(h('p', { class: 'fe-hint', style: 'margin:0 0 6px' }, 'Added invisibly to every page so Google and AI tools know exactly what you do and where. Keep it the same as your Google Business Profile.'));
+    body.appendChild(fText('Short description', biz, 'description', { multiline: true }));
+    body.appendChild(fText('Phone', biz, 'phone', { placeholder: '+1-778-…' }));
+    body.appendChild(fText('Email', biz, 'email', { type: 'email' }));
+    body.appendChild(fText('Based in (city)', biz, 'city'));
+    body.appendChild(fLines('Services (one per line)', biz, 'services', 'Use the words customers search for, e.g. "Custom Bathroom Vanities".'));
+    body.appendChild(fLines('Areas you serve (one per line)', biz, 'areas'));
 
     body.appendChild(h('h4', null, 'Business details'));
     body.appendChild(fText('Business name', s, 'siteName', { keepEmpty: true }));

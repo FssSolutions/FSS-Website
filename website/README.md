@@ -92,6 +92,14 @@ Press **Publish** when you're done. The live site updates about a minute later. 
 
 Every Publish is saved in GitHub history, so any earlier version can be brought back.
 
+### Showing up on Google and AI assistants
+- **Page tab → Google title / Search engine description:** the link text and summary Google shows. Say what you do + where.
+- **Heading type:** each page should have exactly one *Main page heading*. The Page tab warns you if not.
+- **Site tab → For Google & AI assistants:** your services and service areas, added invisibly to every page. Keep them the same as your Google Business Profile.
+- **Photo descriptions:** select a photo and fill in *Description*. Google and AI read these. Say what it shows ("White shaker vanity with quartz top").
+- Renaming or deleting a page automatically redirects its old address, so Google rankings aren't lost.
+- *Faster photos (optional):* `python3 tools/optimize_images.py` makes small WebP copies of new photos; commit them and the site uses them automatically.
+
 ### Contact form
 Right now, **Submit** opens the visitor's email app with their message filled in. To get submissions sent straight to your inbox, make a free form at [formspree.io](https://formspree.io). In the editor, click the form and paste its address into **Form service address**.
 

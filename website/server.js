@@ -67,7 +67,7 @@ function listImages() {
     const abs = path.join(ROOT, dir);
     if (!fs.existsSync(abs)) continue;
     for (const f of fs.readdirSync(abs)) {
-      if (IMAGE_EXT.includes(path.extname(f).toLowerCase())) out.push(dir + '/' + f);
+      if (IMAGE_EXT.includes(path.extname(f).toLowerCase()) && !/\.w\d+\.webp$/i.test(f)) out.push(dir + '/' + f);
     }
   }
   return out;

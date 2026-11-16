@@ -89,7 +89,7 @@
     if (!page) {
       root.innerHTML = R.renderHeader(site, { slug: '__404' }, {}) + '<main class="site-main"><div class="not-found"><h1>Page not found</h1><p><a href="/">Back to home</a></p></div></main>' + R.renderFooter(site, {});
     } else {
-      document.title = page.fullTitle ? page.title : page.title + (site.settings.titleSuffix || '');
+      document.title = page.seoTitle || (page.fullTitle ? page.title : page.title + (site.settings.titleSuffix || ''));
       root.innerHTML = R.renderPage(site, page, {});
     }
     init();

@@ -142,9 +142,8 @@
     {
       "id": "home",
       "slug": "",
-      "title": "FSS Solutions | Carpentry & Home Services in Greater Vancouver",
-      "fullTitle": true,
-      "description": "FSS Solutions offers expert carpentry, cabinet installation, finishing work and home repair services in Greater Vancouver. Quality craftsmanship and integrity guaranteed.",
+      "title": "Home",
+      "description": "East Vancouver finish carpenter: custom media cabinets, bathroom vanities, built-ins, cabinet installation and trim across Greater Vancouver. Request a quote.",
       "headerOverlay": true,
       "sections": [
         {
@@ -156,7 +155,8 @@
             "overlay": 0.35,
             "minHeight": "100vh",
             "align": "center",
-            "valign": "middle"
+            "valign": "middle",
+            "bgAlt": "Custom built-in home office with white cabinetry, shelving and LED lighting"
           },
           "columns": [
             {
@@ -203,7 +203,7 @@
                   "id": "bi",
                   "type": "image",
                   "src": "assets/images/services-exterior.jpg",
-                  "alt": "Exterior home project by FSS Solutions",
+                  "alt": "House exterior with shingle siding and a covered patio",
                   "ratio": "4:5"
                 }
               ]
@@ -214,8 +214,9 @@
                 {
                   "id": "bk",
                   "type": "heading",
-                  "level": 1,
-                  "text": "Services"
+                  "level": 2,
+                  "text": "Services",
+                  "look": 1
                 },
                 {
                   "id": "bl",
@@ -228,6 +229,8 @@
                   "items": [
                     "Finishing Carpentry",
                     "Cabinet Installation",
+                    "Custom Media Cabinets & TV Units",
+                    "Custom Bathroom Vanities",
                     "Custom Built-ins",
                     "Trim & Mouldings",
                     "Door & Hardware Installation",
@@ -322,20 +325,21 @@
                   "id": "bz",
                   "type": "image",
                   "src": "assets/images/kitchen-2.jpg",
-                  "alt": "Custom kitchen cabinetry",
+                  "alt": "Kitchen island with shaker cabinets beside a bright dining nook",
                   "ratio": "3:4"
                 }
               ]
             }
           ]
         }
-      ]
+      ],
+      "seoTitle": "Custom Built-ins, Vanities & Cabinets in Vancouver | FSS Solutions"
     },
     {
       "id": "about",
       "slug": "about",
       "title": "About",
-      "description": "Meet FSS Solutions — finishing carpentry built on honesty, integrity and serving others well.",
+      "description": "Meet FSS Solutions, a family-run finish carpentry business in East Vancouver built on honesty, integrity and careful, detail-focused workmanship.",
       "sections": [
         {
           "id": "s10",
@@ -391,8 +395,9 @@
                 {
                   "id": "b18",
                   "type": "heading",
-                  "level": 1,
-                  "text": "Contact us"
+                  "level": 2,
+                  "text": "Contact us",
+                  "look": 1
                 },
                 {
                   "id": "b19",
@@ -445,13 +450,14 @@
             }
           ]
         }
-      ]
+      ],
+      "seoTitle": "About FSS Solutions | Finish Carpenter in East Vancouver"
     },
     {
       "id": "contact",
       "slug": "contact",
       "title": "Contact",
-      "description": "Contact FSS Solutions for carpentry, cabinet installation and home repairs in Greater Vancouver.",
+      "description": "Request a quote for custom built-ins, vanities, media cabinets, cabinet installation or home repairs in Greater Vancouver. Call 778-554-8184.",
       "sections": [
         {
           "id": "s1c",
@@ -490,7 +496,7 @@
                   "id": "b1i",
                   "type": "image",
                   "src": "assets/images/contact-kitchen.jpg",
-                  "alt": "Kitchen island and cabinetry",
+                  "alt": "White shaker kitchen cabinets with a marble waterfall island",
                   "ratio": "3:4",
                   "maxWidth": "420px",
                   "align": "center"
@@ -499,13 +505,14 @@
             }
           ]
         }
-      ]
+      ],
+      "seoTitle": "Contact FSS Solutions | Request a Carpentry Quote in Vancouver"
     },
     {
       "id": "portfolio",
       "slug": "portfolio",
       "title": "Portfolio",
-      "description": "Recent finishing carpentry and cabinetry projects by FSS Solutions.",
+      "description": "Recent FSS Solutions projects in Greater Vancouver: custom library built-ins, a built-in home office and kitchen cabinet installation.",
       "sections": [
         {
           "id": "s1j",
@@ -527,9 +534,10 @@
                 {
                   "id": "b1m",
                   "type": "heading",
-                  "level": 3,
+                  "level": 1,
                   "text": "Take a look at a selection of our recent projects, crafted with care and precision.",
-                  "maxWidth": "900px"
+                  "maxWidth": "900px",
+                  "look": 3
                 },
                 {
                   "id": "b1n",
@@ -544,12 +552,14 @@
                     {
                       "title": "Library",
                       "image": "assets/images/library-1.jpg",
-                      "href": "/portfolio/library/"
+                      "href": "/portfolio/library/",
+                      "alt": "Floor-to-ceiling built-in library shelving with crown moulding and cove lighting"
                     },
                     {
                       "title": "Kitchens",
                       "image": "assets/images/kitchen-1.jpg",
-                      "href": "/portfolio/kitchens/"
+                      "href": "/portfolio/kitchens/",
+                      "alt": "White shaker kitchen cabinets with a marble waterfall island"
                     }
                   ]
                 }
@@ -557,13 +567,14 @@
             }
           ]
         }
-      ]
+      ],
+      "seoTitle": "Portfolio: Custom Built-ins & Kitchens in Vancouver | FSS Solutions"
     },
     {
       "id": "library",
       "slug": "portfolio/library",
       "title": "Library",
-      "description": "Custom library built-ins, crown moulding and lighting by FSS Solutions.",
+      "description": "Floor-to-ceiling library shelving, a built-in home office desk, crown moulding and LED lighting by FSS Solutions in Greater Vancouver.",
       "sections": [
         {
           "id": "s1p",
@@ -585,8 +596,9 @@
                 {
                   "id": "b1s",
                   "type": "heading",
-                  "level": 2,
-                  "text": "Library"
+                  "level": 1,
+                  "text": "Custom Library Built-ins",
+                  "look": 2
                 },
                 {
                   "id": "b1t",
@@ -595,19 +607,19 @@
                   "images": [
                     {
                       "src": "assets/images/library-1.jpg",
-                      "alt": "Library project"
+                      "alt": "Floor-to-ceiling built-in library shelving with crown moulding and cove lighting"
                     },
                     {
                       "src": "assets/images/library-2.jpg",
-                      "alt": "Library project"
+                      "alt": "Built-in home office desk and shelving with under-cabinet LED lighting"
                     },
                     {
                       "src": "assets/images/library-3.jpg",
-                      "alt": "Library project"
+                      "alt": "Custom built-in desk, drawers and open shelving under a tray ceiling"
                     },
                     {
                       "src": "assets/images/library-4.jpg",
-                      "alt": "Library project"
+                      "alt": "Built-in bookshelves beside a fireplace in a home library"
                     }
                   ]
                 }
@@ -650,13 +662,14 @@
             }
           ]
         }
-      ]
+      ],
+      "seoTitle": "Custom Library Built-ins & Home Office Cabinetry | FSS Solutions"
     },
     {
       "id": "kitchens",
       "slug": "portfolio/kitchens",
       "title": "Kitchens",
-      "description": "Kitchen cabinet installation and finishing carpentry by FSS Solutions.",
+      "description": "Kitchen cabinet installation and finishing by FSS Solutions in Greater Vancouver: shaker and flat-panel cabinetry and marble waterfall islands.",
       "sections": [
         {
           "id": "s1z",
@@ -678,8 +691,9 @@
                 {
                   "id": "b22",
                   "type": "heading",
-                  "level": 2,
-                  "text": "Kitchens"
+                  "level": 1,
+                  "text": "Kitchen Cabinetry",
+                  "look": 2
                 },
                 {
                   "id": "b23",
@@ -688,19 +702,19 @@
                   "images": [
                     {
                       "src": "assets/images/kitchen-1.jpg",
-                      "alt": "Kitchen project"
+                      "alt": "White shaker kitchen cabinets with a marble waterfall island"
                     },
                     {
                       "src": "assets/images/kitchen-2.jpg",
-                      "alt": "Kitchen project"
+                      "alt": "Kitchen island with shaker cabinets beside a bright dining nook"
                     },
                     {
                       "src": "assets/images/kitchen-3.jpg",
-                      "alt": "Kitchen project"
+                      "alt": "White flat-panel kitchen cabinets with stainless steel appliances"
                     },
                     {
                       "src": "assets/images/kitchen-4.jpg",
-                      "alt": "Kitchen project"
+                      "alt": "Navy blue flat-panel kitchen cabinets with an agate tile backsplash"
                     }
                   ]
                 }
@@ -743,7 +757,8 @@
             }
           ]
         }
-      ]
+      ],
+      "seoTitle": "Kitchen Cabinet Installation Projects | FSS Solutions Vancouver"
     }
   ],
   "redirects": [
@@ -775,5 +790,41 @@
       "from": "/home",
       "to": "/"
     }
-  ]
+  ],
+  "business": {
+    "description": "FSS Solutions is a finish carpentry business based in East Vancouver. We build custom media cabinets, bathroom vanities and built-ins, and do cabinet installation, trim and mouldings, door and hardware installation, renovation support and general home repairs across Greater Vancouver.",
+    "phone": "+1-778-554-8184",
+    "email": "Riley@fsssolutions.ca",
+    "city": "Vancouver",
+    "region": "BC",
+    "country": "CA",
+    "areas": [
+      "Vancouver",
+      "Burnaby",
+      "North Vancouver",
+      "West Vancouver",
+      "Coquitlam",
+      "Port Moody",
+      "Surrey",
+      "New Westminster",
+      "Gulf Islands"
+    ],
+    "services": [
+      "Finishing Carpentry",
+      "Custom Media Cabinets & TV Units",
+      "Custom Bathroom Vanities",
+      "Cabinet Installation",
+      "Custom Built-ins",
+      "Trim & Mouldings",
+      "Door & Hardware Installation",
+      "Interior Renovation Support",
+      "General Home Repairs",
+      "Full House Wash Services"
+    ],
+    "images": [
+      "assets/images/hero-office.jpg",
+      "assets/images/kitchen-1.jpg",
+      "assets/images/library-1.jpg"
+    ]
+  }
 }

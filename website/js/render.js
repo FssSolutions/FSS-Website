@@ -53,11 +53,36 @@
     '1-1-1-1': [1, 1, 1, 1]
   };
 
+  // <img> with responsive WebP copies, real dimensions and lazy loading when the
+  // build knows about the file (ctx.images, filled in by build.js).
+  function imgTag(src, alt, ctx, opts) {
+    opts = opts || {};
+    var info = ctx.images && ctx.images[String(src || '').replace(/^\//, '')];
+    var a = '<img src="' + esc(asset(src, ctx)) + '" alt="' + esc(alt) + '"';
+    if (info && info.variants && info.variants.length) {
+      a += ' srcset="' + esc(info.variants.map(function (v) { return asset(v.src, ctx) + ' ' + v.w + 'w'; }).join(', ')) + '"' +
+        ' sizes="' + esc(opts.sizes || '100vw') + '"';
+    }
+    if (info && info.w && info.h) a += ' width="' + info.w + '" height="' + info.h + '"';
+    if (opts.priority) a += ' fetchpriority="high"';
+    else if (!ctx.first) a += ' loading="lazy"';
+    a += ' decoding="async"';
+    if (opts.style) a += ' style="' + esc(opts.style) + '"';
+    return a + (opts.attrs || '') + '>';
+  }
+  // The "sizes" hint: how wide the photo shows on phones and on larger screens.
+  function sizesFor(ctx, desktopShare, phoneShare, maxWidth) {
+    var share = (ctx.colShare || 1) * (desktopShare || 1);
+    var desk = /^\d+px$/.test(maxWidth || '') ? maxWidth : Math.max(10, Math.round(share * 100)) + 'vw';
+    return '(max-width: 800px) ' + Math.round((phoneShare || 1) * 100) + 'vw, ' + desk;
+  }
+
   // ---------- Blocks ----------
   var BLOCKS = {
     heading: function (b, ctx) {
       var lvl = Math.min(4, Math.max(1, parseInt(b.level, 10) || 2));
-      return '<h' + lvl + ' class="b-heading"' + ed(ctx, 'text', 'plain') + '>' + esc(b.text) + '</h' + lvl + '>';
+      var look = Math.min(4, Math.max(1, parseInt(b.look, 10) || lvl));
+      return '<h' + lvl + ' class="b-heading' + (look !== lvl ? ' look-' + look : '') + '"' + ed(ctx, 'text', 'plain') + '>' + esc(b.text) + '</h' + lvl + '>';
     },
     text: function (b, ctx) {
       return '<div class="b-text' + (b.size ? ' size-' + esc(b.size) : '') + '"' + ed(ctx, 'html', 'rich') + '>' + (b.html || '') + '</div>';
@@ -74,7 +99,7 @@
     image: function (b, ctx) {
       var ratio = b.ratio && b.ratio !== 'auto' ? ' style="aspect-ratio:' + esc(b.ratio.replace(':', '/')) + '"' : '';
       var img = b.src
-        ? '<img src="' + esc(asset(b.src, ctx)) + '" alt="' + esc(b.alt) + '" loading="lazy"' + (b.position ? ' style="object-position:' + esc(b.position) + '"' : '') + '>'
+        ? imgTag(b.src, b.alt, ctx, { sizes: sizesFor(ctx, 1, 1, b.maxWidth), style: b.position ? 'object-position:' + b.position : '' })
         : '<div class="img-placeholder">Drop an image here</div>';
       var inner = '<div class="img-frame' + (ratio ? ' fixed' : '') + '"' + ratio + '>' + img + '</div>';
       if (b.caption || ctx.edit && b.caption !== undefined) inner += '<figcaption' + ed(ctx, 'caption') + '>' + esc(b.caption) + '</figcaption>';
@@ -84,7 +109,8 @@
     gallery: function (b, ctx) {
       var cols = parseInt(b.columns, 10) || 3;
       var imgs = (b.images || []).map(function (im, i) {
-        return '<figure class="g-item"><img src="' + esc(asset(im.src, ctx)) + '" alt="' + esc(im.alt) + '" loading="lazy" data-full="' + esc(asset(im.src, ctx)) + '" data-index="' + i + '"></figure>';
+        return '<figure class="g-item">' + imgTag(im.src, im.alt, ctx, { sizes: sizesFor(ctx, 1 / cols, 1 / Math.min(cols, 2)),
+          attrs: ' data-full="' + esc(asset(im.src, ctx)) + '" data-index="' + i + '"' }) + '</figure>';
       }).join('');
       if (!imgs && ctx.edit) imgs = '<div class="img-placeholder">Drop images here</div>';
       return '<div class="b-gallery" style="--cols:' + cols + '">' + imgs + '</div>';
@@ -95,7 +121,7 @@
         var tag = ctx.edit || !it.href ? 'div' : 'a';
         var link = tag === 'a' ? ' href="' + esc(href(it.href, ctx)) + '"' + target(it.href) : '';
         return '<' + tag + ' class="card"' + link + '>' +
-          '<div class="card-img">' + (it.image ? '<img src="' + esc(asset(it.image, ctx)) + '" alt="' + esc(it.title) + '" loading="lazy">' : '<div class="img-placeholder">Image</div>') + '</div>' +
+          '<div class="card-img">' + (it.image ? imgTag(it.image, it.alt || it.title, ctx, { sizes: sizesFor(ctx, 1 / cols, 1 / Math.min(cols, 2)) }) : '<div class="img-placeholder">Image</div>') + '</div>' +
           '<h3 class="card-title"' + ed(ctx, 'items.' + i + '.title') + '>' + esc(it.title) + '</h3>' +
           (it.text || ctx.edit ? '<p class="card-text"' + ed(ctx, 'items.' + i + '.text') + '>' + esc(it.text) + '</p>' : '') +
           '</' + tag + '>';
@@ -166,11 +192,13 @@
     var grid = widths.slice(0, cols.length).map(function (w) { return w + 'fr'; }).join(' ');
     var bg = '';
     if (st.bgImage) {
-      bg = '<div class="sec-bg"><img src="' + esc(asset(st.bgImage, ctx)) + '" alt="" ' + (st.bgPosition ? 'style="object-position:' + esc(st.bgPosition) + '"' : '') + '>' +
+      bg = '<div class="sec-bg">' + imgTag(st.bgImage, st.bgAlt || '', ctx, { sizes: '100vw', priority: ctx.first, style: st.bgPosition ? 'object-position:' + st.bgPosition : '' }) +
         '<div class="sec-overlay" style="opacity:' + (st.overlay != null ? st.overlay : 0.35) + '"></div></div>';
     }
-    var colsHtml = cols.map(function (c) {
-      var blocks = (c.blocks || []).map(function (b) { return renderBlock(b, ctx); }).join('');
+    var total = widths.slice(0, cols.length).reduce(function (a, b) { return a + b; }, 0) || 1;
+    var colsHtml = cols.map(function (c, ci) {
+      var cctx = Object.assign({}, ctx, { colShare: (widths[ci] || 1) / total });
+      var blocks = (c.blocks || []).map(function (b) { return renderBlock(b, cctx); }).join('');
       var data = ctx.edit ? ' data-col-id="' + esc(c.id) + '"' : '';
       var empty = ctx.edit && !(c.blocks || []).length ? '<div class="col-empty">Drag blocks here</div>' : '';
       return '<div class="col"' + data + '>' + blocks + empty + '</div>';
@@ -202,7 +230,7 @@
     var tone = page.headerOverlay ? ' overlay' : ' on-' + ((first && first.style && first.style.theme) || 'light');
     return '<header class="site-header' + tone + '"' + (ctx.edit ? ' data-site-header' : '') + '>' +
       '<div class="header-inner">' +
-      '<a class="logo" href="' + esc(href('/', ctx)) + '"><img src="' + esc(asset(s.logo, ctx)) + '" alt="' + esc(s.siteName) + '"></a>' +
+      '<a class="logo" href="' + esc(href('/', ctx)) + '">' + imgTag(s.logo, s.siteName, Object.assign({}, ctx, { first: true }), { sizes: '128px' }) + '</a>' +
       '<nav class="main-nav">' + navLinks + social + cta + '</nav>' +
       '<button class="menu-toggle" aria-label="Open menu" aria-expanded="false">' + ICONS.menu + ICONS.close + '</button>' +
       '</div>' +
@@ -212,14 +240,14 @@
 
   function renderFooter(site, ctx) {
     if (!site.footer) return '';
-    var sCtx = Object.assign({}, ctx);
+    var sCtx = Object.assign({}, ctx, { first: false });
     return '<footer class="site-footer"' + (ctx.edit ? ' data-site-footer' : '') + '>' + renderSection(site.footer, sCtx) +
       '<div class="footer-bottom">' + esc((site.settings || {}).copyright || '').replace('{year}', new Date().getFullYear()) + '</div></footer>';
   }
 
   function renderPage(site, page, ctx) {
     ctx = ctx || {};
-    var sections = (page.sections || []).map(function (s) { return renderSection(s, ctx); }).join('');
+    var sections = (page.sections || []).map(function (s, i) { return renderSection(s, Object.assign({}, ctx, { first: i === 0 })); }).join('');
     if (ctx.edit && !(page.sections || []).length) sections = '<div class="page-empty">Drag a section from the left panel to start this page</div>';
     return renderHeader(site, page, ctx) +
       '<main class="site-main"' + (ctx.edit ? ' data-sections' : '') + '>' + sections + '</main>' +
