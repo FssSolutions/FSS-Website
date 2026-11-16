@@ -745,5 +745,35 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "from": "/portfolio/project-one-f5w4d-z9nem-s3jda-x8w73-2yckk",
+      "to": "/portfolio/library/"
+    },
+    {
+      "from": "/portfolio/project-four-l3zw3-dk9py-xcmem-e2jgd-44a9y",
+      "to": "/portfolio/kitchens/"
+    },
+    {
+      "from": "/services",
+      "to": "/#services"
+    },
+    {
+      "from": "/shop",
+      "to": "/"
+    },
+    {
+      "from": "/cart",
+      "to": "/"
+    },
+    {
+      "from": "/search",
+      "to": "/"
+    },
+    {
+      "from": "/home",
+      "to": "/"
+    }
   ]
 }

@@ -1437,6 +1437,7 @@
         var oldUrl = pageUrl(p);
         p.slug = clean;
         relink(oldUrl, pageUrl(p));
+        addRedirect(oldUrl, pageUrl(p));
       }, immediate: true, reinspect: true
     }));
     body.appendChild(fText('Search engine description', p, 'description', { multiline: true, hint: 'One or two sentences shown by Google under the page title.' }));
@@ -1455,6 +1456,13 @@
           (o.slug ? o.title : 'Home') + '  ' + pageUrl(o))));
     });
     body.appendChild(h('div', { class: 'fe-btns' }, h('button', { class: 'fe-btn primary', type: 'button', onclick: addPage }, '+ New page')));
+  }
+  // Keeps old addresses working (and Google rankings intact) after a page moves or is deleted.
+  function addRedirect(from, to) {
+    var list = (state.site.redirects || []).filter(function (r) { return r.from !== from; });
+    list.forEach(function (r) { if (r.to === from) r.to = to; });
+    if (from !== to && from !== '/') list.push({ from: from, to: to });
+    state.site.redirects = list;
   }
   function relink(oldUrl, newUrl) {
     (function walk(o) {
@@ -1504,6 +1512,7 @@
     change(function () {
       state.site.pages.splice(state.site.pages.indexOf(p), 1);
       state.site.nav = state.site.nav.filter(function (l) { return l.href !== url; });
+      addRedirect(url, '/');
     });
     goToPage(state.site.pages[0].id);
   }

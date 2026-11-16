@@ -77,6 +77,19 @@ function build(site, outDir) {
   fs.writeFileSync(path.join(outDir, '_headers'),
     '/editor/*\n  X-Robots-Tag: noindex\n  Cache-Control: no-store\n/js/editor.js\n  Cache-Control: no-cache\n/js/render.js\n  Cache-Control: no-cache\n/css/*\n  Cache-Control: no-cache\n');
 
+  // Redirects for old or renamed page addresses (Cloudflare Pages "_redirects" file).
+  // A redirect is skipped if a real page now lives at that address.
+  const pageUrls = new Set((site.pages || []).map(p => R.pageUrl(p)));
+  const redirectLines = [];
+  for (const r of site.redirects || []) {
+    const from = String(r.from || '').trim().replace(/\/+$/, '');
+    const to = String(r.to || '').trim();
+    if (!/^\/[^\s#?]+$/.test(from) || !/^(\/|https?:\/\/)\S*$/.test(to)) continue;
+    if (pageUrls.has(from + '/')) continue;
+    redirectLines.push(from + ' ' + to + ' 301', from + '/ ' + to + ' 301');
+  }
+  fs.writeFileSync(path.join(outDir, '_redirects'), Array.from(new Set(redirectLines)).join('\n') + '\n');
+
   const urls = [];
   for (const page of site.pages || []) {
     const slug = String(page.slug || '').replace(/^\/+|\/+$/g, '');
