@@ -77,6 +77,20 @@
     return '(max-width: 800px) ' + Math.round((phoneShare || 1) * 100) + 'vw, ' + desk;
   }
 
+  function stars(n) {
+    var r = Math.max(0, Math.min(5, Math.round(n || 0)));
+    return '★★★★★'.slice(0, r) + '<span class="rv-off">' + '★★★★★'.slice(0, 5 - r) + '</span>';
+  }
+  // One review card. Also used by site.js for live Google reviews (same markup).
+  function reviewCard(it) {
+    var who = esc(it.author || 'Customer');
+    if (it.authorUrl) who = '<a href="' + esc(it.authorUrl) + '" target="_blank" rel="noopener nofollow">' + who + '</a>';
+    return '<figure class="rv-card"><div class="rv-stars" aria-label="' + esc(it.rating || 5) + ' out of 5 stars">' + stars(it.rating || 5) + '</div>' +
+      '<blockquote>' + esc(it.text) + '</blockquote>' +
+      '<figcaption class="rv-author">' + (it.photo ? '<img src="' + esc(it.photo) + '" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">' : '') +
+      '<span><b>' + who + '</b>' + (it.date || it.when ? '<small>' + esc(it.date || it.when) + '</small>' : '') + '</span></figcaption></figure>';
+  }
+
   // ---------- Blocks ----------
   var BLOCKS = {
     heading: function (b, ctx) {
@@ -127,6 +141,21 @@
           '</' + tag + '>';
       }).join('');
       return '<div class="b-cards" style="--cols:' + cols + '">' + items + '</div>';
+    },
+    reviews: function (b, ctx) {
+      var max = parseInt(b.max, 10) || 3;
+      var items = (b.items || []).filter(function (it) { return it.text; }).slice(0, max);
+      var rating = parseFloat(b.rating);
+      var summary = rating ? '<p class="rv-summary"><span class="rv-stars" aria-hidden="true">' + stars(rating) + '</span> <b>' + rating.toFixed(1) + '</b>' +
+        (b.count ? ' · ' + esc(b.count) + ' Google review' + (Number(b.count) === 1 ? '' : 's') : ' on Google') + '</p>' : '<p class="rv-summary"></p>';
+      var cards = items.map(function (it) { return reviewCard(it); }).join('');
+      if (!cards && ctx.edit) cards = '<div class="img-placeholder" style="grid-column:1/-1;min-height:120px">' +
+        (b.live ? 'Your latest Google reviews appear here on the live website' : 'Add reviews in the settings panel') + '</div>';
+      var links = '';
+      if (b.googleUrl) links += '<a class="rv-all" href="' + esc(b.googleUrl) + '" target="_blank" rel="noopener"' + (ctx.edit ? ' onclick="return false"' : '') + '>Read all reviews on Google</a>';
+      if (b.writeUrl) links += '<a class="rv-write" href="' + esc(b.writeUrl) + '" target="_blank" rel="noopener"' + (ctx.edit ? ' onclick="return false"' : '') + '>Leave a review</a>';
+      return '<div class="b-reviews" data-live="' + (b.live ? 1 : 0) + '" data-max="' + max + '">' + summary +
+        '<div class="rv-grid">' + cards + '</div>' + (links ? '<p class="rv-links">' + links + '</p>' : '') + '</div>';
     },
     spacer: function (b) {
       return '<div class="b-spacer" style="height:' + (parseInt(b.height, 10) || 40) + 'px"></div>';
@@ -295,7 +324,7 @@
   }
 
   return {
-    esc: esc, renderPage: renderPage, renderSection: renderSection, renderBlock: renderBlock,
+    esc: esc, reviewCard: reviewCard, renderPage: renderPage, renderSection: renderSection, renderBlock: renderBlock,
     renderHeader: renderHeader, renderFooter: renderFooter, themeCss: themeCss, fontsUrl: fontsUrl, FONTS: FONTS,
     findPage: findPage, pageUrl: pageUrl, LAYOUTS: LAYOUTS, BLOCK_TYPES: Object.keys(BLOCKS), ICONS: ICONS
   };

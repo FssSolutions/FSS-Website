@@ -90,7 +90,7 @@ function structuredData(site, page) {
     email: biz.email || undefined,
     address: biz.city ? { '@type': 'PostalAddress', addressLocality: biz.city, addressRegion: biz.region || undefined, addressCountry: biz.country || undefined } : undefined,
     areaServed: areas.length ? areas.map(n => ({ '@type': /island/i.test(n) ? 'Place' : 'City', name: n })) : undefined,
-    sameAs: [s.facebook, s.instagram].filter(Boolean),
+    sameAs: [s.facebook, s.instagram, biz.google].filter(Boolean),
     knowsAbout: services.length ? services : undefined,
     hasOfferCatalog: services.length ? {
       '@type': 'OfferCatalog', name: (s.siteName || '') + ' services',

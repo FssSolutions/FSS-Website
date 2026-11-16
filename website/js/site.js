@@ -9,6 +9,18 @@
   'use strict';
   var root = document.getElementById('site-root');
 
+  // Same markup as reviewCard() in render.js.
+  window.FSSReviewCard = window.FSSReviewCard || function (it) {
+    var e = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    var r = Math.max(0, Math.min(5, Math.round(it.rating || 5)));
+    var who = e(it.author || 'Customer');
+    if (it.authorUrl) who = '<a href="' + e(it.authorUrl) + '" target="_blank" rel="noopener nofollow">' + who + '</a>';
+    return '<figure class="rv-card"><div class="rv-stars" aria-label="' + r + ' out of 5 stars">' + '★★★★★'.slice(0, r) + '<span class="rv-off">' + '★★★★★'.slice(0, 5 - r) + '</span></div>' +
+      '<blockquote>' + e(it.text) + '</blockquote><figcaption class="rv-author">' +
+      (it.photo ? '<img src="' + e(it.photo) + '" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">' : '') +
+      '<span><b>' + who + '</b>' + (it.date || it.when ? '<small>' + e(it.date || it.when) + '</small>' : '') + '</span></figcaption></figure>';
+  };
+
   function init() {
     // Mobile menu
     var header = root.querySelector('.site-header');
@@ -44,6 +56,45 @@
           done();
         }
       });
+    });
+
+    // Live Google reviews (only when the Reviews block has "live" on and the Google key is set up)
+    root.querySelectorAll('.b-reviews[data-live="1"]').forEach(function (box) {
+      var load = function () {
+        fetch('/api/reviews').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+          if (!d || !d.reviews || !d.reviews.length || !window.FSSReviewCard) return;
+          var max = parseInt(box.getAttribute('data-max'), 10) || 3;
+          var list = d.reviews.filter(function (x) { return x.text; }).slice(0, max);
+          if (!list.length) return;
+          box.querySelector('.rv-grid').innerHTML = list.map(window.FSSReviewCard).join('');
+          if (d.rating) {
+            var n = Math.round(d.rating), s = box.querySelector('.rv-summary');
+            s.innerHTML = '<span class="rv-stars" aria-hidden="true">' + '★★★★★'.slice(0, n) + '<span class="rv-off">' + '★★★★★'.slice(0, 5 - n) + '</span></span> <b>' +
+              d.rating.toFixed(1) + '</b>' + (d.count ? ' · ' + d.count + ' Google review' + (d.count === 1 ? '' : 's') : '');
+          }
+          var all = box.querySelector('.rv-all');
+          if (all && d.url) all.href = d.url;
+          if (d.writeUrl && !box.querySelector('.rv-write')) {
+            var links = box.querySelector('.rv-links');
+            if (!links) { links = document.createElement('p'); links.className = 'rv-links'; box.appendChild(links); }
+            var w = document.createElement('a');
+            w.className = 'rv-write'; w.href = d.writeUrl; w.target = '_blank'; w.rel = 'noopener'; w.textContent = 'Leave a review';
+            links.appendChild(w);
+          }
+          if (!box.querySelector('.rv-source')) {
+            var src = document.createElement('p');
+            src.className = 'rv-source';
+            src.textContent = 'Reviews from Google';
+            box.appendChild(src);
+          }
+        }).catch(function () { /* keep the reviews already on the page */ });
+      };
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (es) {
+          if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); load(); }
+        }, { rootMargin: '400px' });
+        io.observe(box);
+      } else load();
     });
 
     // Gallery lightbox

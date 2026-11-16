@@ -100,6 +100,17 @@ Every Publish is saved in GitHub history, so any earlier version can be brought 
 - Renaming or deleting a page automatically redirects its old address, so Google rankings aren't lost.
 - *Faster photos (optional):* `python3 tools/optimize_images.py` makes small WebP copies of new photos; commit them and the site uses them automatically.
 
+### Live Google reviews
+The home page's **Reviews** block loads your newest Google reviews on each visit. One-time setup:
+1. [console.cloud.google.com](https://console.cloud.google.com) → create a project (e.g. "FSS website") → add billing (a card is required; this site's traffic stays within Google's free monthly allowance).
+2. **APIs & Services → Library → "Places API (New)" → Enable.**
+3. **APIs & Services → Credentials → Create credentials → API key.** Edit the key → *API restrictions* → **Restrict key** → tick **Places API (New)** → Save. Copy the key.
+4. Cloudflare → your Pages project → **Settings → Variables and Secrets** → add **Secret** `GOOGLE_PLACES_API_KEY` with that key → **Deployments → Retry deployment**.
+5. Open `https://www.fsssolutions.ca/api/reviews`. It shows the business it found and its `placeId` (starts with `ChIJ`). Add a plain variable `GOOGLE_PLACE_ID` with that value, then retry the deployment again. This halves the lookups.
+6. Optional safety net: Google Cloud → **Billing → Budgets & alerts** → a $1 budget with email alerts.
+
+Until this is set up (or if Google is ever unreachable) the block shows the rating, any reviews you typed into it in the editor, and the links.
+
 ### Contact form
 Right now, **Submit** opens the visitor's email app with their message filled in. To get submissions sent straight to your inbox, make a free form at [formspree.io](https://formspree.io). In the editor, click the form and paste its address into **Form service address**.
 

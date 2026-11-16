@@ -91,7 +91,8 @@
     form: '<rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="12" width="18" height="8" rx="1"/>',
     spacer: '<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>',
     divider: '<path d="M3 12h18"/>',
-    embed: '<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>'
+    embed: '<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>',
+    reviews: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'
   };
   function icon(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON_PATHS[n] || '') + '</svg>'; }
 
@@ -108,6 +109,10 @@
     form: { label: 'Form', make: function () {
       return { type: 'form', email: (state.site && findEmail()) || '', subject: 'New enquiry from the website', action: '', submitLabel: 'Submit', successMessage: 'Thank you! We will be in touch shortly.',
         fields: [{ label: 'Name', name: 'name', type: 'text', required: true }, { label: 'Email', name: 'email', type: 'email', required: true }, { label: 'Message', name: 'message', type: 'textarea', required: true }] };
+    } },
+    reviews: { label: 'Reviews', make: function () {
+      var g = (state.site && state.site.business) || {};
+      return { type: 'reviews', live: true, max: 3, rating: '', count: '', googleUrl: g.google || '', writeUrl: g.googleReview || '', items: [] };
     } },
     spacer: { label: 'Spacer', make: function () { return { type: 'spacer', height: 40 }; } },
     divider: { label: 'Divider', make: function () { return { type: 'divider' }; } },
@@ -1377,6 +1382,25 @@
           make: function () { return { label: 'Phone', name: 'phone', type: 'tel' }; }, addLabel: 'Add field'
         }));
         break;
+      case 'reviews':
+        f.push(fCheck('Show my latest Google reviews automatically', b, 'live'));
+        f.push(h('div', { class: 'fe-note' }, 'With this on, the live website loads your newest Google reviews each visit (once the Google key is set up — see the README). Reviews you add below show until then, and are what search engines and AI read.'));
+        f.push(fSeg('How many to show', b, 'max', [[3, '3'], [6, '6']], { def: '3', set: function (v) { b.max = Number(v); } }));
+        f.push(h('div', { class: 'fe-row' }, fText('Star rating', b, 'rating', { placeholder: '5.0' }), fText('Number of reviews', b, 'count', { placeholder: '5' })));
+        f.push(fLink('"Read all reviews" link', b, 'googleUrl', { hint: 'Your Google Business Profile link.' }));
+        f.push(fLink('"Leave a review" link', b, 'writeUrl', { hint: 'Business Profile → Ask for reviews → copy the link.' }));
+        b.items = b.items || [];
+        f.push(fList('Reviews written into the page', b.items, {
+          title: function (it, i) { return it.author || 'Review ' + (i + 1); },
+          fields: function (it) {
+            return [fText('Name', it, 'author', { keepEmpty: true }),
+              fSelect('Stars', it, 'rating', [[5, '★★★★★'], [4, '★★★★'], [3, '★★★'], [2, '★★'], [1, '★']], { def: '5', number: true }),
+              fText('Review', it, 'text', { multiline: true, keepEmpty: true }),
+              fText('When (optional)', it, 'date', { placeholder: 'e.g. March 2026' })];
+          },
+          make: function () { return { author: '', rating: 5, text: '' }; }, addLabel: 'Add review'
+        }));
+        break;
       case 'spacer':
         f.push(fRange('Height', b, 'height', 0, 300, 5, { def: 40, suffix: ' px' }));
         break;
@@ -1564,6 +1588,8 @@
     body.appendChild(fText('Phone', biz, 'phone', { placeholder: '+1-778-…' }));
     body.appendChild(fText('Email', biz, 'email', { type: 'email' }));
     body.appendChild(fText('Based in (city)', biz, 'city'));
+    body.appendChild(fText('Google Business Profile link', biz, 'google', { type: 'url' }));
+    body.appendChild(fText('Google "leave a review" link', biz, 'googleReview', { type: 'url' }));
     body.appendChild(fLines('Services (one per line)', biz, 'services', 'Use the words customers search for, e.g. "Custom Bathroom Vanities".'));
     body.appendChild(fLines('Areas you serve (one per line)', biz, 'areas'));
 

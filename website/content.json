@@ -257,6 +257,37 @@
           "anchor": "services"
         },
         {
+          "id": "s-reviews",
+          "layout": "1",
+          "style": {
+            "theme": "navy"
+          },
+          "columns": [
+            {
+              "id": "c-reviews",
+              "blocks": [
+                {
+                  "id": "b-reviews-h",
+                  "type": "heading",
+                  "level": 2,
+                  "text": "What our clients say"
+                },
+                {
+                  "id": "b-reviews",
+                  "type": "reviews",
+                  "live": true,
+                  "max": 3,
+                  "rating": "5.0",
+                  "count": "5",
+                  "googleUrl": "https://www.google.com/search?kgmid=/g/11xssdsgft",
+                  "writeUrl": "",
+                  "items": []
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "sp",
           "layout": "1-1",
           "style": {
@@ -825,6 +856,7 @@
       "assets/images/hero-office.jpg",
       "assets/images/kitchen-1.jpg",
       "assets/images/library-1.jpg"
-    ]
+    ],
+    "google": "https://www.google.com/search?kgmid=/g/11xssdsgft"
   }
 }
