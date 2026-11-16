@@ -18,7 +18,8 @@
       "bodyFont": "Montserrat",
       "buttonFont": "Poppins",
       "uppercase": true
-    }
+    },
+    "headerButton": {}
   },
   "nav": [
     {
@@ -165,7 +166,7 @@
                   "id": "bd",
                   "type": "heading",
                   "level": 1,
-                  "text": "Reliable Carpentry & Home Services in Greater Vancouver"
+                  "text": "Reliable great Carpentry & Home Services in Greater Vancouver"
                 },
                 {
                   "id": "be",
