@@ -31,9 +31,10 @@ def main():
             src = os.path.join(d, name)
             im = ImageOps.exif_transpose(Image.open(src))
             widths = LOGO_WIDTHS if base.startswith('logo') else WIDTHS
-            for w in widths:
+            # Never upscale: a photo narrower than a target width gets a copy at its own width.
+            for w in sorted(set(min(w, im.width) for w in widths)):
                 out = os.path.join(d, f'{base}.w{w}.webp')
-                if os.path.exists(out) or (w > im.width and w != widths[0]):
+                if os.path.exists(out):
                     continue
                 copy = im.copy()
                 if copy.width > w:

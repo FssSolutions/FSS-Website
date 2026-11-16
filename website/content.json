@@ -543,7 +543,7 @@
       "id": "portfolio",
       "slug": "portfolio",
       "title": "Portfolio",
-      "description": "Recent FSS Solutions projects in Greater Vancouver: custom library built-ins, a built-in home office and kitchen cabinet installation.",
+      "description": "Recent FSS Solutions projects in Greater Vancouver: walnut living room built-ins, custom library shelving, a built-in home office and kitchen cabinet installation.",
       "sections": [
         {
           "id": "s1j",
@@ -580,6 +580,12 @@
                   "type": "cards",
                   "columns": 3,
                   "items": [
+                    {
+                      "title": "Living Room Built-ins",
+                      "image": "assets/images/living-room-built-ins.jpg",
+                      "alt": "Walnut shaker built-in cabinets on both sides of a white fireplace surround",
+                      "href": "/portfolio/living-room-built-ins/"
+                    },
                     {
                       "title": "Library",
                       "image": "assets/images/library-1.jpg",
@@ -779,8 +785,8 @@
                 {
                   "id": "b28",
                   "type": "button",
-                  "label": "All projects →",
-                  "href": "/portfolio/",
+                  "label": "Next: Living Room Built-ins →",
+                  "href": "/portfolio/living-room-built-ins/",
                   "variant": "outline",
                   "align": "right"
                 }
@@ -790,6 +796,92 @@
         }
       ],
       "seoTitle": "Kitchen Cabinet Installation Projects | FSS Solutions Vancouver"
+    },
+    {
+      "id": "living-room",
+      "slug": "portfolio/living-room-built-ins",
+      "title": "Living Room Built-ins",
+      "seoTitle": "Walnut Built-in Cabinets Beside a Fireplace | FSS Solutions Vancouver",
+      "description": "Custom walnut shaker built-in cabinets on both sides of a fireplace, by FSS Solutions, finish carpenter in Greater Vancouver.",
+      "sections": [
+        {
+          "id": "s-lr-1",
+          "layout": "1",
+          "style": {
+            "theme": "white",
+            "valign": "top"
+          },
+          "columns": [
+            {
+              "id": "c-lr-1",
+              "blocks": [
+                {
+                  "id": "b-lr-1",
+                  "type": "text",
+                  "html": "<p>Portfolio</p>",
+                  "size": "eyebrow"
+                },
+                {
+                  "id": "b-lr-2",
+                  "type": "heading",
+                  "level": 1,
+                  "look": 2,
+                  "text": "Living Room Built-ins"
+                },
+                {
+                  "id": "b-lr-3",
+                  "type": "text",
+                  "maxWidth": "700px",
+                  "html": "<p>Walnut shaker-style built-in cabinets on both sides of the fireplace: closed storage that frames the fireplace and makes the room feel finished and furnished.</p>"
+                },
+                {
+                  "id": "b-lr-4",
+                  "type": "image",
+                  "src": "assets/images/living-room-built-ins.jpg",
+                  "alt": "Walnut shaker built-in cabinets on both sides of a white fireplace surround",
+                  "ratio": "auto",
+                  "maxWidth": "900px"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "s-lr-2",
+          "layout": "1-1",
+          "style": {
+            "theme": "white",
+            "padding": "20px"
+          },
+          "columns": [
+            {
+              "id": "c-lr-2",
+              "blocks": [
+                {
+                  "id": "b-lr-5",
+                  "type": "button",
+                  "label": "← All projects",
+                  "href": "/portfolio/",
+                  "variant": "outline"
+                }
+              ]
+            },
+            {
+              "id": "c-lr-3",
+              "blocks": [
+                {
+                  "id": "b-lr-6",
+                  "type": "button",
+                  "label": "Next: Library →",
+                  "href": "/portfolio/library/",
+                  "variant": "outline",
+                  "align": "right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "redirects": [
@@ -853,6 +945,7 @@
       "Full House Wash Services"
     ],
     "images": [
+      "assets/images/living-room-built-ins.jpg",
       "assets/images/hero-office.jpg",
       "assets/images/kitchen-1.jpg",
       "assets/images/library-1.jpg"
