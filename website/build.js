@@ -8,6 +8,7 @@
  */
 'use strict';
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const R = require('./js/render.js');
 
@@ -110,6 +111,11 @@ function pageTitle(site, page) {
 }
 
 let IMAGES = null;
+// Version stamps (?v=…) so browsers fetch new styles/scripts right after each publish
+// instead of keeping old copies (Cloudflare tells browsers to keep them for hours).
+function fileVersion(rel) {
+  return crypto.createHash('sha1').update(fs.readFileSync(path.join(ROOT, rel))).digest('hex').slice(0, 10);
+}
 function pageHtml(site, page, depth) {
   const prefix = depth ? '../'.repeat(depth) : './';
   const ctx = { linkPrefix: prefix, assetPrefix: prefix, images: IMAGES || (IMAGES = imageManifest()) };
@@ -135,13 +141,13 @@ function pageHtml(site, page, depth) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="${esc(R.fontsUrl(site))}">
-  <link rel="stylesheet" href="${prefix}css/site.css">
+  <link rel="stylesheet" href="${prefix}css/site.css?v=${fileVersion('css/site.css')}">
   <style>${R.themeCss(site)}</style>
   ${page.slug === '__404' ? '<meta name="robots" content="noindex">' : structuredData(site, page)}
 </head>
 <body>
   <div id="site-root">${R.renderPage(site, page, ctx)}</div>
-  <script src="${prefix}js/site.js"></script>
+  <script src="${prefix}js/site.js?v=${fileVersion('js/site.js')}"></script>
 </body>
 </html>
 `;
@@ -161,7 +167,11 @@ function build(site, outDir) {
   fs.copyFileSync(path.join(ROOT, 'js', 'render.js'), path.join(outDir, 'js', 'render.js'));
   fs.copyFileSync(path.join(ROOT, 'js', 'editor.js'), path.join(outDir, 'js', 'editor.js'));
   fs.mkdirSync(path.join(outDir, 'editor'), { recursive: true });
-  fs.copyFileSync(path.join(ROOT, 'editor.html'), path.join(outDir, 'editor', 'index.html'));
+  let editorHtml = fs.readFileSync(path.join(ROOT, 'editor.html'), 'utf8');
+  for (const rel of ['css/site.css', 'css/editor.css', 'js/render.js', 'js/editor.js']) {
+    editorHtml = editorHtml.split('"/' + rel + '"').join('"/' + rel + '?v=' + fileVersion(rel) + '"');
+  }
+  fs.writeFileSync(path.join(outDir, 'editor', 'index.html'), editorHtml);
   fs.writeFileSync(path.join(outDir, '_headers'), [
     // Keep Google to the real domain: hide the temporary *.pages.dev addresses.
     'https://:project.pages.dev/*', '  X-Robots-Tag: noindex',
