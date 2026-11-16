@@ -229,9 +229,11 @@
                   "items": [
                     "Finishing Carpentry",
                     "Cabinet Installation",
+                    "IKEA Cabinet Installation & Built-ins",
                     "Custom Media Cabinets & TV Units",
                     "Custom Bathroom Vanities",
                     "Custom Built-ins",
+                    "Fireplace Surrounds",
                     "Trim & Mouldings",
                     "Door & Hardware Installation",
                     "Interior Renovation Support",
@@ -543,7 +545,7 @@
       "id": "portfolio",
       "slug": "portfolio",
       "title": "Portfolio",
-      "description": "Recent FSS Solutions projects in Greater Vancouver: walnut living room built-ins, custom library shelving, a built-in home office and kitchen cabinet installation.",
+      "description": "Recent FSS Solutions projects in Greater Vancouver: IKEA built-ins and a fireplace surround, custom library shelving, a built-in home office and kitchen cabinet installation.",
       "sections": [
         {
           "id": "s1j",
@@ -581,9 +583,9 @@
                   "columns": 3,
                   "items": [
                     {
-                      "title": "Living Room Built-ins",
+                      "title": "IKEA Built-ins & Fireplace",
                       "image": "assets/images/living-room-built-ins.jpg",
-                      "alt": "Walnut shaker built-in cabinets on both sides of a white fireplace surround",
+                      "alt": "IKEA cabinets with walnut-finish shaker doors built in on both sides of a white fireplace surround, East Vancouver living room",
                       "href": "/portfolio/living-room-built-ins/"
                     },
                     {
@@ -785,7 +787,7 @@
                 {
                   "id": "b28",
                   "type": "button",
-                  "label": "Next: Living Room Built-ins →",
+                  "label": "Next: IKEA Built-ins →",
                   "href": "/portfolio/living-room-built-ins/",
                   "variant": "outline",
                   "align": "right"
@@ -801,8 +803,8 @@
       "id": "living-room",
       "slug": "portfolio/living-room-built-ins",
       "title": "Living Room Built-ins",
-      "seoTitle": "Walnut Built-in Cabinets Beside a Fireplace | FSS Solutions Vancouver",
-      "description": "Custom walnut shaker built-in cabinets on both sides of a fireplace, by FSS Solutions, finish carpenter in Greater Vancouver.",
+      "seoTitle": "IKEA Built-ins & Fireplace Surround, East Vancouver | FSS Solutions",
+      "description": "IKEA cabinets installed as built-ins on both sides of a new fireplace surround, built by FSS Solutions in an East Vancouver living room.",
       "sections": [
         {
           "id": "s-lr-1",
@@ -826,19 +828,19 @@
                   "type": "heading",
                   "level": 1,
                   "look": 2,
-                  "text": "Living Room Built-ins"
+                  "text": "IKEA Built-ins & Fireplace Surround"
                 },
                 {
                   "id": "b-lr-3",
                   "type": "text",
                   "maxWidth": "700px",
-                  "html": "<p>Walnut shaker-style built-in cabinets on both sides of the fireplace: closed storage that frames the fireplace and makes the room feel finished and furnished.</p>"
+                  "html": "<p>In this East Vancouver living room, we installed IKEA cabinets as built-ins on both sides of the fireplace and built the fireplace surround between them. Walnut-finish shaker doors and brass knobs give the wall a warm, custom look without the cost of fully custom cabinetry.</p><p>Thinking about IKEA built-ins for your home? <a href=\"/contact/\">Get in touch for a quote</a>.</p>"
                 },
                 {
                   "id": "b-lr-4",
                   "type": "image",
                   "src": "assets/images/living-room-built-ins.jpg",
-                  "alt": "Walnut shaker built-in cabinets on both sides of a white fireplace surround",
+                  "alt": "IKEA cabinets with walnut-finish shaker doors built in on both sides of a white fireplace surround, East Vancouver living room",
                   "ratio": "auto",
                   "maxWidth": "900px"
                 }
@@ -915,7 +917,7 @@
     }
   ],
   "business": {
-    "description": "FSS Solutions is a finish carpentry business based in East Vancouver. We build custom media cabinets, bathroom vanities and built-ins, and do cabinet installation, trim and mouldings, door and hardware installation, renovation support and general home repairs across Greater Vancouver.",
+    "description": "FSS Solutions is a finish carpentry business based in East Vancouver. We build custom media cabinets, bathroom vanities, fireplace surrounds and built-ins, install IKEA and custom cabinets, and do trim and mouldings, door and hardware installation, renovation support and general home repairs across Greater Vancouver.",
     "phone": "+1-778-554-8184",
     "email": "Riley@fsssolutions.ca",
     "city": "Vancouver",
@@ -937,7 +939,9 @@
       "Custom Media Cabinets & TV Units",
       "Custom Bathroom Vanities",
       "Cabinet Installation",
+      "IKEA Cabinet Installation & Built-ins",
       "Custom Built-ins",
+      "Fireplace Surrounds",
       "Trim & Mouldings",
       "Door & Hardware Installation",
       "Interior Renovation Support",
